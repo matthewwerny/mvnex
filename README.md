@@ -106,7 +106,14 @@ Create a new Maven project interactively:
 mvnex init
 ```
 
-Or provide configuration directly:
+The interactive flow asks for:
+
+- project name
+- Maven groupId
+- Java version
+- whether to generate Maven Wrapper
+
+You can also provide configuration directly:
 
 ```bash
 mvnex init my-app --group-id com.example --java 21
@@ -118,11 +125,20 @@ Override the generated Java package when needed:
 mvnex init my-app --package com.example.app
 ```
 
-Skip Maven Wrapper generation when you want the project to rely on a locally
-installed Maven:
+By default, `mvnex init` generates Maven Wrapper files so the project can be built with `./mvnw` even when Maven is not installed globally. To skip wrapper generation and rely on a local Maven installation, use:
 
 ```bash
 mvnex init my-app --no-wrapper
+```
+
+Available options:
+
+```text
+-g, --group-id <id>       Set Maven groupId
+-p, --package <name>      Set Java package name
+-j, --java <version>      Set Java version
+-w, --no-wrapper          Do not generate Maven Wrapper
+-h, --help                Show init help
 ```
 
 `mvnex init` currently provides:
@@ -134,17 +150,24 @@ mvnex init my-app --no-wrapper
 - Java package validation
 - Java version validation
 - Maven-standard directory structure
-- automatic package generation
+- automatic package generation from `groupId` and project name
+- optional package override with `--package`
 - `Main.java` generation
 - `pom.xml` generation
 - Maven Wrapper generation
+- fallback wrapper generation when global `mvn` is unavailable
 - optional `--no-wrapper` mode
 - protection against existing project directories
 
-Generated structure:
+Generated structure with Maven Wrapper enabled:
 
 ```text
 my-app/
+├── .mvn/
+│   └── wrapper/
+│       └── maven-wrapper.properties
+├── mvnw
+├── mvnw.cmd
 ├── pom.xml
 └── src/
     ├── main/
@@ -156,14 +179,18 @@ my-app/
             └── com/example/myapp/
 ```
 
-The generated project can immediately be built using Maven:
+The generated project can immediately be built with the wrapper:
 
 ```bash
 cd my-app
 ./mvnw package
 ```
 
-If the project was created with `--no-wrapper`, use `mvn package` instead.
+If the project was created with `--no-wrapper`, use local Maven instead:
+
+```bash
+mvn package
+```
 
 ---
 
@@ -274,6 +301,9 @@ The goal would be to make the JDK required by a project easier to discover and c
 - [x] Project defaults
 - [x] Java/package validation
 - [x] Maven project generation
+- [x] Maven Wrapper generation
+- [x] Optional `--no-wrapper` mode
+- [x] Optional `--package` override
 - [ ] Transactional project generation / rollback
 - [ ] Project types
 - [ ] Spring Boot template
@@ -342,7 +372,7 @@ Clone the repository and build:
 
 ```bash
 git clone <repository-url>
-cd mvnex
+cd mvnx
 
 cmake -S . -B build
 cmake --build build
@@ -386,6 +416,6 @@ The command surface and configuration formats may change before the first stable
 
 # License
 
-A permissive open-source license is planned for the public release.
+Copyright 2026 Sebastián Sánchez.
 
-Apache License 2.0 is currently being considered.
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
