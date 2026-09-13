@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        cout << "Usage: mvnx <command>\n";
+        cout << "Usage: mvnex <command>\n";
         return 0;
     }
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     if (command == "--version" || command == "-v")
     {
-        cout << "mvnx " << MVNX_VERSION << '\n';
+        cout << "mvnex " << MVNEX_VERSION << '\n';
         return 0;
     }
     else if (command == "--help" || command == "-h")

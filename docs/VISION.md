@@ -1,18 +1,18 @@
-# mvnx — Vision
+# mvnex — Vision
 
 ## The idea
 
-`mvnx` aims to provide a modern developer experience for Maven.
+`mvnex` aims to provide a modern developer experience for Maven.
 
-Maven is not the problem `mvnx` is trying to solve.
+Maven is not the problem `mvnex` is trying to solve.
 
 Maven provides a mature build lifecycle, dependency resolution system, plugin ecosystem, repository model, and project format used throughout the Java ecosystem.
 
-`mvnx` exists to make interacting with those capabilities simpler.
+`mvnex` exists to make interacting with those capabilities simpler.
 
 The guiding idea is:
 
-> **mvnx enhances Maven. It doesn't replace it.**
+> **mvnex enhances Maven. It doesn't replace it.**
 
 ---
 
@@ -42,10 +42,10 @@ The underlying Maven dependency model is powerful.
 
 The interaction can be improved.
 
-`mvnx` should make the common case:
+`mvnex` should make the common case:
 
 ```bash
-mvnx add lombok
+mvnex add lombok
 ```
 
 ---
@@ -54,9 +54,9 @@ mvnx add lombok
 
 ## 1. Maven remains the engine
 
-`mvnx` should not implement a competing Maven build system.
+`mvnex` should not implement a competing Maven build system.
 
-Where Maven already has mature functionality, `mvnx` should orchestrate or configure Maven instead of reimplementing it.
+Where Maven already has mature functionality, `mvnex` should orchestrate or configure Maven instead of reimplementing it.
 
 This includes:
 
@@ -74,12 +74,12 @@ This includes:
 
 ## 2. Standard Maven projects
 
-Using `mvnx` must not require adopting a proprietary project format.
+Using `mvnex` must not require adopting a proprietary project format.
 
 The following:
 
 ```bash
-mvnx init my-app
+mvnex init my-app
 ```
 
 must generate a standard Maven project.
@@ -87,12 +87,12 @@ must generate a standard Maven project.
 The following:
 
 ```bash
-mvnx add lombok
+mvnex add lombok
 ```
 
 must modify the Maven project in a standards-compatible way.
 
-At any point, a developer should be able to uninstall `mvnx` and continue using:
+At any point, a developer should be able to uninstall `mvnex` and continue using:
 
 ```bash
 mvn compile
@@ -104,10 +104,10 @@ mvn package
 
 ## 3. `pom.xml` remains the source of truth
 
-`mvnx` may eventually introduce optional configuration such as:
+`mvnex` may eventually introduce optional configuration such as:
 
 ```text
-mvnx.toml
+mvnex.toml
 ```
 
 but dependency declarations must not be moved away from Maven.
@@ -121,7 +121,7 @@ lombok = "1.18.48"
 
 if it caused `pom.xml` to stop being authoritative.
 
-Maven tools, IDEs, CI systems, and developers should continue understanding the project without requiring `mvnx`.
+Maven tools, IDEs, CI systems, and developers should continue understanding the project without requiring `mvnex`.
 
 ---
 
@@ -130,34 +130,34 @@ Maven tools, IDEs, CI systems, and developers should continue understanding the 
 A developer should be able to:
 
 ```bash
-mvnx init my-api
-mvnx add lombok
+mvnex init my-api
+mvnex add lombok
 ```
 
-and then never use `mvnx` again.
+and then never use `mvnex` again.
 
 The project must continue working normally.
 
-This makes trying `mvnx` low-risk.
+This makes trying `mvnex` low-risk.
 
 ---
 
 ## 5. Optimize common workflows
 
-`mvnx` should not expose every Maven capability through a second syntax.
+`mvnex` should not expose every Maven capability through a second syntax.
 
 Commands should exist when they meaningfully improve the developer experience.
 
 Examples:
 
 ```bash
-mvnx init
-mvnx add
-mvnx remove
-mvnx update
-mvnx outdated
-mvnx install
-mvnx run
+mvnex init
+mvnex add
+mvnex remove
+mvnex update
+mvnex outdated
+mvnex install
+mvnex run
 ```
 
 There is no requirement for every:
@@ -169,7 +169,7 @@ mvn ...
 command to have an:
 
 ```bash
-mvnx ...
+mvnex ...
 ```
 
 equivalent.
@@ -178,14 +178,14 @@ equivalent.
 
 # Dependency experience
 
-One of the primary goals of `mvnx` is improving dependency management.
+One of the primary goals of `mvnex` is improving dependency management.
 
 ## Short names
 
 Desired:
 
 ```bash
-mvnx add lombok
+mvnex add lombok
 ```
 
 Possible flow:
@@ -214,7 +214,7 @@ pom.xml
 ## Explicit versions
 
 ```bash
-mvnx add lombok:1.18.48
+mvnex add lombok:1.18.48
 ```
 
 should resolve the artifact and validate the requested version.
@@ -226,27 +226,27 @@ should resolve the artifact and validate the requested version.
 Experienced Maven users should be able to bypass search:
 
 ```bash
-mvnx add org.projectlombok:lombok
+mvnex add org.projectlombok:lombok
 ```
 
 or specify everything:
 
 ```bash
-mvnx add org.projectlombok:lombok:1.18.48
+mvnex add org.projectlombok:lombok:1.18.48
 ```
 
-The more information the developer supplies, the less discovery `mvnx` should perform.
+The more information the developer supplies, the less discovery `mvnex` should perform.
 
 ---
 
 ## Ambiguous dependencies
 
-`mvnx` must never silently select an arbitrary artifact simply because it appeared first in a search result.
+`mvnex` must never silently select an arbitrary artifact simply because it appeared first in a search result.
 
 For:
 
 ```bash
-mvnx add guice
+mvnex add guice
 ```
 
 multiple artifacts may exist.
@@ -259,7 +259,7 @@ Correctness is more important than pretending the CLI can magically infer every 
 
 # Dependency resolution
 
-`mvnx` should distinguish between two concepts.
+`mvnex` should distinguish between two concepts.
 
 ## Artifact discovery
 
@@ -298,7 +298,7 @@ These responsibilities should remain separate internally.
 
 `pom.xml` must be treated as XML, not as a string template once modifying existing projects.
 
-`mvnx` should not rely on operations such as:
+`mvnex` should not rely on operations such as:
 
 ```text
 find "</dependencies>"
@@ -321,9 +321,9 @@ POM modifications should therefore be structural.
 
 ---
 
-# `mvnx install`
+# `mvnex install`
 
-`mvnx install` intentionally does not mean exactly the same thing as:
+`mvnex install` intentionally does not mean exactly the same thing as:
 
 ```bash
 mvn install
@@ -331,13 +331,13 @@ mvn install
 
 In Maven, `install` is a lifecycle phase that installs the project's built artifact into the local Maven repository.
 
-The intended `mvnx install` experience is closer to:
+The intended `mvnex install` experience is closer to:
 
 > Prepare this project and its dependencies so I can work on it.
 
 Maven should still perform Maven dependency resolution.
 
-`mvnx` should orchestrate rather than reimplement that process.
+`mvnex` should orchestrate rather than reimplement that process.
 
 Exact behavior will be defined before implementation.
 
@@ -362,9 +362,9 @@ test = "mvn test"
 Then:
 
 ```bash
-mvnx run dev
-mvnx run build
-mvnx run test
+mvnex run dev
+mvnex run build
+mvnex run test
 ```
 
 This configuration is intended for developer convenience.
@@ -378,9 +378,9 @@ It should not replace Maven's POM.
 A future version may help developers manage Java installations:
 
 ```bash
-mvnx java install 21
-mvnx java use 21
-mvnx java list
+mvnex java install 21
+mvnex java use 21
+mvnex java list
 ```
 
 Potential responsibilities include:
@@ -396,7 +396,7 @@ JDK management should remain modular and optional.
 
 # Project initialization
 
-`mvnx init` should evolve into a polished project generator.
+`mvnex init` should evolve into a polished project generator.
 
 Potential project types:
 
@@ -476,7 +476,7 @@ A future `--no-color` option should be considered.
 
 # Native CLI
 
-`mvnx` is implemented in C++.
+`mvnex` is implemented in C++.
 
 The CLI should eventually be distributable as native binaries for:
 
@@ -488,7 +488,7 @@ Linux ARM64
 Windows x86_64
 ```
 
-Running `mvnx` itself should not require a JVM.
+Running `mvnex` itself should not require a JVM.
 
 A JDK/Maven installation may still be required when the requested operation inherently uses Java or Maven.
 
@@ -501,13 +501,13 @@ The long-term installation experience should be simple.
 macOS:
 
 ```bash
-brew install mvnx
+brew install mvnex
 ```
 
 Windows:
 
 ```bash
-winget install mvnx
+winget install mvnex
 ```
 
 Linux may initially provide a portable installer in addition to package-manager options.
@@ -520,7 +520,7 @@ Release creation should eventually be automated through CI/CD.
 
 # Open source
 
-`mvnx` is intended to be developed openly.
+`mvnex` is intended to be developed openly.
 
 Desired outcomes include:
 
@@ -537,9 +537,9 @@ The canonical project should maintain clear authorship, licensing, release histo
 
 ---
 
-# What mvnx should NOT become
+# What mvnex should NOT become
 
-`mvnx` should avoid becoming:
+`mvnex` should avoid becoming:
 
 ### Another Maven
 
@@ -547,11 +547,11 @@ Do not rebuild Maven's dependency resolver, lifecycle, or plugin system merely t
 
 ### A proprietary Maven format
 
-Do not require developers to convert existing Maven projects into an `mvnx`-specific format.
+Do not require developers to convert existing Maven projects into an `mvnex`-specific format.
 
 ### A giant wrapper
 
-Do not create `mvnx` aliases for every Maven command unless there is meaningful UX improvement.
+Do not create `mvnex` aliases for every Maven command unless there is meaningful UX improvement.
 
 ### Magic that sacrifices correctness
 
@@ -565,7 +565,7 @@ Ask the developer when necessary.
 
 The project is successful if a Maven developer thinks:
 
-> "I could do this manually with Maven, but mvnx makes it easier."
+> "I could do this manually with Maven, but mvnex makes it easier."
 
 The ultimate goal is not to make Maven disappear.
 

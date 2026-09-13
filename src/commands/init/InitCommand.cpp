@@ -7,19 +7,34 @@
 
 #include "project/ProjectConfig.h"
 #include "project/ProjectGenerator.h"
+#include "project/ProjectNaming.h"
 #include "project/ProjectValidator.h"
+#include "maven/MavenWrapperGenerator.h"
 
 #include <exception>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
 using namespace std;
 
+static void printSummaryRow(const string &label, const string &value)
+{
+    cout
+        << "  "
+        << left
+        << setw(10)
+        << label
+        << value
+        << '\n';
+}
+
 ProjectConfig InitCommand::collectConfig(const ArgumentParser &parser)
 {
     string projectName = parser.getArgument(0);
     string groupId = parser.getOption("group-id");
+    string packageName = parser.getOption("package");
     string javaVersion = parser.getOption("java");
     bool hasProjectNameArgument = !parser.getArguments().empty();
 
@@ -38,6 +53,11 @@ ProjectConfig InitCommand::collectConfig(const ArgumentParser &parser)
     if (!groupId.empty())
     {
         ProjectValidator::validateGroupId(groupId, javaVersion.empty() ? "21" : javaVersion);
+    }
+
+    if (!packageName.empty())
+    {
+        ProjectValidator::validateGroupId(packageName, javaVersion.empty() ? "21" : javaVersion);
     }
 
     if (!hasProjectNameArgument)
@@ -77,9 +97,17 @@ ProjectConfig InitCommand::collectConfig(const ArgumentParser &parser)
         }
     }
 
+    if (packageName.empty())
+    {
+        packageName =
+            groupId + "." +
+            ProjectNaming::toPackageName(projectName);
+    }
+
     return {
         projectName,
         groupId,
+        packageName,
         javaVersion};
 }
 
@@ -87,8 +115,10 @@ int InitCommand::execute(int argc, char *argv[])
 {
     ArgumentParser parser(argc, argv, 2);
     parser.addOption({"group-id", 'g', true});
+    parser.addOption({"package", 'p', true});
     parser.addOption({"java", 'j', true});
     parser.addOption({"help", 'h', false});
+    parser.addOption({"no-wrapper", 'w', false});
 
     try
     {
@@ -117,7 +147,7 @@ int InitCommand::execute(int argc, char *argv[])
             << Style::CYAN
             << "✗ "
             << Style::RESET
-            << "Too many arguments. Usage: mvnx init [project-name] [options]\n";
+            << "Too many arguments. Usage: mvnex init [project-name] [options]\n";
         return 1;
     }
 
@@ -126,7 +156,7 @@ int InitCommand::execute(int argc, char *argv[])
         << Style::CYAN
         << "◆"
         << Style::RESET
-        << " mvnx init"
+        << " mvnex init"
         << "\n\n"
         << flush;
 
@@ -159,6 +189,38 @@ int InitCommand::execute(int argc, char *argv[])
         return 1;
     }
 
+    bool skipWrapper = parser.hasOption("no-wrapper");
+    bool shouldAskWrapper =
+        !skipWrapper &&
+        (
+            parser.getArguments().empty() ||
+            parser.getOption("group-id").empty() ||
+            parser.getOption("java").empty()
+        );
+
+    if (shouldAskWrapper)
+    {
+        Prompt prompt;
+
+        string wrapperChoice = prompt.select(
+            "Maven Wrapper",
+            {"Yes", "No"},
+            "Yes"
+        );
+
+        if (wrapperChoice.empty())
+        {
+            cerr 
+                << Style::CYAN
+                << "✗ "
+                << Style::RESET
+                << "Operation cancelled.\n";
+            return 1;
+        }
+
+        skipWrapper = wrapperChoice == "No";
+    }
+
     try
     {
         ProjectValidator::validate(config);
@@ -170,16 +232,29 @@ int InitCommand::execute(int argc, char *argv[])
             << Style::RESET
             << "\n\n";
 
-        cout << "  Project   " << config.name << '\n';
-        cout << "  Group     " << config.groupId << '\n';
-        cout << "  Java      " << config.javaVersion << '\n';
+        printSummaryRow("Project", config.name);
+        printSummaryRow("Group", config.groupId);
+        printSummaryRow("Package", config.packageName);
+        printSummaryRow("Java", config.javaVersion);
+        printSummaryRow("Wrapper", skipWrapper ? "None" : "Maven Wrapper");
 
-        ProjectGenerator::generate(config);
+        if (skipWrapper && !MavenWrapperGenerator::isMavenInstalled())
+        {
+            cout
+                << '\n'
+                << Style::YELLOW
+                << "⚠ "
+                << Style::RESET
+                << "Maven is not installed.\n"
+                << "  You will need Maven to build this project without the wrapper.\n";
+        }
+
+        ProjectGenerator::generate(config, skipWrapper);
 
         cout << "\n✓ Project created successfully\n\n";
 
         cout << "  cd " << config.name << '\n';
-        cout << "  mvn package\n\n";
+        cout << (skipWrapper ? "  mvn package\n\n" : "  ./mvnw package\n\n");
     }
     catch (const exception &e)
     {

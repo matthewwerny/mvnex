@@ -1,25 +1,25 @@
-# mvnx
+# mvnex
 
 **A modern developer experience for Maven.**
 
-`mvnx` is an open-source native CLI that brings a simpler, more interactive, npm-like developer experience to Maven projects — without replacing Maven.
+`mvnex` is an open-source native CLI that brings a simpler, more interactive, npm-like developer experience to Maven projects — without replacing Maven.
 
 ```bash
-mvnx init my-app
+mvnex init my-app
 cd my-app
 
 # Planned
-mvnx add lombok
-mvnx add org.postgresql:postgresql
+mvnex add lombok
+mvnex add org.postgresql:postgresql
 ```
 
-> **mvnx enhances Maven. It doesn't replace it.**
+> **mvnex enhances Maven. It doesn't replace it.**
 
-Projects created or modified with `mvnx` remain standard Maven projects.
+Projects created or modified with `mvnex` remain standard Maven projects.
 
 ---
 
-## Why mvnx?
+## Why mvnex?
 
 Maven is powerful, mature, and widely used throughout the Java ecosystem.
 
@@ -35,10 +35,10 @@ For example, adding a dependency normally requires finding its coordinates and m
 </dependency>
 ```
 
-The long-term goal of `mvnx` is to make common workflows simpler:
+The long-term goal of `mvnex` is to make common workflows simpler:
 
 ```bash
-mvnx add lombok
+mvnex add lombok
 ```
 
 while still producing a completely standard Maven project.
@@ -49,7 +49,7 @@ while still producing a completely standard Maven project.
 
 ### Maven stays Maven
 
-`mvnx` is not a new build system.
+`mvnex` is not a new build system.
 
 It does not replace:
 
@@ -60,11 +60,11 @@ It does not replace:
 - Maven plugins
 - existing Maven tooling
 
-Instead, `mvnx` acts as a developer-experience layer around Maven.
+Instead, `mvnex` acts as a developer-experience layer around Maven.
 
 The `pom.xml` remains the source of truth.
 
-You should always be able to stop using `mvnx` and continue with:
+You should always be able to stop using `mvnex` and continue with:
 
 ```bash
 mvn compile
@@ -79,7 +79,7 @@ without migrating or converting your project.
 A project created with:
 
 ```bash
-mvnx init my-app
+mvnex init my-app
 ```
 
 should still be a normal Maven project.
@@ -87,32 +87,45 @@ should still be a normal Maven project.
 A project modified with:
 
 ```bash
-mvnx add lombok
+mvnex add lombok
 ```
 
 should still contain normal Maven dependency declarations.
 
-`mvnx` should improve the workflow, not create a new ecosystem that users become dependent on.
+`mvnex` should improve the workflow, not create a new ecosystem that users become dependent on.
 
 ---
 
 # Current features
 
-## `mvnx init`
+## `mvnex init`
 
 Create a new Maven project interactively:
 
 ```bash
-mvnx init
+mvnex init
 ```
 
 Or provide configuration directly:
 
 ```bash
-mvnx init my-app --group-id com.example --java 21
+mvnex init my-app --group-id com.example --java 21
 ```
 
-`mvnx init` currently provides:
+Override the generated Java package when needed:
+
+```bash
+mvnex init my-app --package com.example.app
+```
+
+Skip Maven Wrapper generation when you want the project to rely on a locally
+installed Maven:
+
+```bash
+mvnex init my-app --no-wrapper
+```
+
+`mvnex init` currently provides:
 
 - interactive project creation
 - editable terminal input
@@ -124,6 +137,8 @@ mvnx init my-app --group-id com.example --java 21
 - automatic package generation
 - `Main.java` generation
 - `pom.xml` generation
+- Maven Wrapper generation
+- optional `--no-wrapper` mode
 - protection against existing project directories
 
 Generated structure:
@@ -145,8 +160,10 @@ The generated project can immediately be built using Maven:
 
 ```bash
 cd my-app
-mvn package
+./mvnw package
 ```
+
+If the project was created with `--no-wrapper`, use `mvn package` instead.
 
 ---
 
@@ -157,20 +174,20 @@ The following commands describe the direction of the project and are **not neces
 ## Dependencies
 
 ```bash
-mvnx add lombok
-mvnx add lombok:1.18.48
-mvnx add org.projectlombok:lombok
-mvnx add org.projectlombok:lombok:1.18.48
+mvnex add lombok
+mvnex add lombok:1.18.48
+mvnex add org.projectlombok:lombok
+mvnex add org.projectlombok:lombok:1.18.48
 
-mvnx remove lombok
+mvnex remove lombok
 
-mvnx update
-mvnx outdated
+mvnex update
+mvnex outdated
 ```
 
 Short dependency names should be resolved through Maven Central when possible.
 
-For ambiguous artifacts, `mvnx` should allow the developer to choose:
+For ambiguous artifacts, `mvnex` should allow the developer to choose:
 
 ```text
 ◇  Multiple artifacts found
@@ -192,10 +209,10 @@ Explicit Maven coordinates should always be supported.
 Planned:
 
 ```bash
-mvnx install
+mvnex install
 ```
 
-`mvnx install` is intended to prepare a project for development using Maven as the underlying engine.
+`mvnex install` is intended to prepare a project for development using Maven as the underlying engine.
 
 It should not redefine Maven dependency resolution.
 
@@ -211,7 +228,7 @@ which executes Maven's lifecycle through the `install` phase and installs the bu
 
 ## Scripts
 
-A future `mvnx.toml` may provide convenient project commands:
+A future `mvnex.toml` may provide convenient project commands:
 
 ```toml
 [java]
@@ -227,9 +244,9 @@ start = "java -jar target/app.jar"
 Allowing:
 
 ```bash
-mvnx run dev
-mvnx run build
-mvnx run test
+mvnex run dev
+mvnex run build
+mvnex run test
 ```
 
 ---
@@ -239,9 +256,9 @@ mvnx run test
 Potential future commands:
 
 ```bash
-mvnx java install 21
-mvnx java use 21
-mvnx java list
+mvnex java install 21
+mvnex java use 21
+mvnex java list
 ```
 
 The goal would be to make the JDK required by a project easier to discover and configure.
@@ -252,7 +269,7 @@ The goal would be to make the JDK required by a project easier to discover and c
 
 ## Project creation
 
-- [x] `mvnx init`
+- [x] `mvnex init`
 - [x] Interactive terminal input
 - [x] Project defaults
 - [x] Java/package validation
@@ -269,13 +286,13 @@ The goal would be to make the JDK required by a project easier to discover and c
 - [ ] Maven Central search
 - [ ] Maven metadata resolution
 - [ ] Interactive artifact selection
-- [ ] `mvnx add`
+- [ ] `mvnex add`
 - [ ] Explicit dependency versions
 - [ ] Multiple dependencies per command
 - [ ] Duplicate dependency detection
-- [ ] `mvnx remove`
-- [ ] `mvnx update`
-- [ ] `mvnx outdated`
+- [ ] `mvnex remove`
+- [ ] `mvnex update`
+- [ ] `mvnex outdated`
 
 ## Maven integration
 
@@ -287,17 +304,17 @@ The goal would be to make the JDK required by a project easier to discover and c
 
 ## Workflow
 
-- [ ] `mvnx install`
-- [ ] `mvnx.toml`
-- [ ] `mvnx run`
+- [ ] `mvnex install`
+- [ ] `mvnex.toml`
+- [ ] `mvnex run`
 - [ ] Project scripts
 
 ## Java
 
 - [ ] JDK detection
-- [ ] `mvnx java list`
-- [ ] `mvnx java use`
-- [ ] `mvnx java install`
+- [ ] `mvnex java list`
+- [ ] `mvnex java use`
+- [ ] `mvnex java install`
 
 ## Distribution
 
@@ -325,7 +342,7 @@ Clone the repository and build:
 
 ```bash
 git clone <repository-url>
-cd mvnx
+cd mvnex
 
 cmake -S . -B build
 cmake --build build
@@ -334,16 +351,16 @@ cmake --build build
 Run:
 
 ```bash
-./build/mvnx
+./build/mvnex
 ```
 
-Dependencies required by `mvnx` are managed through CMake where possible.
+Dependencies required by `mvnex` are managed through CMake where possible.
 
 ---
 
 # Technology
 
-`mvnx` is primarily written in **C++20**.
+`mvnex` is primarily written in **C++20**.
 
 Current and planned technologies include:
 
@@ -355,13 +372,13 @@ Current and planned technologies include:
 - XML parsing
 - native filesystem APIs
 
-C++ allows `mvnx` to be distributed as a native executable without requiring a JVM merely to run the CLI.
+C++ allows `mvnex` to be distributed as a native executable without requiring a JVM merely to run the CLI.
 
 ---
 
 # Project status
 
-`mvnx` is currently under active development.
+`mvnex` is currently under active development.
 
 The command surface and configuration formats may change before the first stable release.
 

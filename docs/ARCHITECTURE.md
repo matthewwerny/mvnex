@@ -1,6 +1,6 @@
-# mvnx — Architecture
+# mvnex — Architecture
 
-This document describes the intended internal architecture of `mvnx`.
+This document describes the intended internal architecture of `mvnex`.
 
 The architecture will evolve as the project grows.
 
@@ -95,7 +95,7 @@ It should not contain Maven-specific business logic.
 Responsible for parsing:
 
 ```bash
-mvnx init my-app --java 21
+mvnex init my-app --java 21
 ```
 
 into:
@@ -284,10 +284,10 @@ generate files
    │
    ├── success ──► keep project
    │
-   └── failure ──► remove files created by mvnx
+   └── failure ──► remove files created by mvnex
 ```
 
-Rollback must only delete a directory known to have been created by the current `mvnx` operation.
+Rollback must only delete a directory known to have been created by the current `mvnex` operation.
 
 Existing user directories must never be deleted as part of rollback.
 
@@ -590,7 +590,7 @@ Commands should avoid partially modifying projects.
 For:
 
 ```bash
-mvnx add lombok guice postgresql
+mvnex add lombok guice postgresql
 ```
 
 desired flow:
@@ -631,9 +631,9 @@ JavaVersion
 This allows:
 
 ```bash
-mvnx java list
-mvnx java install 21
-mvnx java use 21
+mvnex java list
+mvnex java install 21
+mvnex java use 21
 ```
 
 without coupling JDK management to `InitCommand`.
@@ -642,7 +642,7 @@ without coupling JDK management to `InitCommand`.
 
 # Configuration
 
-Future `mvnx` configuration belongs under:
+Future `mvnex` configuration belongs under:
 
 ```text
 config/
@@ -651,7 +651,7 @@ config/
 Possible configuration sources:
 
 ```text
-mvnx.toml
+mvnex.toml
 global configuration
 environment variables
 CLI options
@@ -683,7 +683,7 @@ This may include:
 
 The goal is not to wrap every `std::filesystem` operation unnecessarily.
 
-Create abstractions only where `mvnx` needs additional behavior.
+Create abstractions only where `mvnex` needs additional behavior.
 
 ---
 
@@ -773,4 +773,4 @@ It should normally belong to only one of those areas.
 
 The goal is not to maximize the number of classes.
 
-The goal is to keep responsibilities clear enough that `mvnx` can grow without every new command becoming a giant source file.
+The goal is to keep responsibilities clear enough that `mvnex` can grow without every new command becoming a giant source file.

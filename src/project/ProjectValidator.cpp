@@ -11,6 +11,7 @@ void ProjectValidator::validate(const ProjectConfig &config)
 {
     validateProjectName(config.name, config.javaVersion);
     validateGroupId(config.groupId, config.javaVersion);
+    validateGroupId(config.packageName, config.javaVersion);
     validateJavaVersion(config.javaVersion);
 }
 

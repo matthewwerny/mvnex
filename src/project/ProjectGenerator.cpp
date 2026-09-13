@@ -1,5 +1,5 @@
 #include "ProjectGenerator.h"
-#include "ProjectNaming.h"
+#include "maven/MavenWrapperGenerator.h"
 
 #include <filesystem>
 #include <fstream>
@@ -33,11 +33,9 @@ static fs::path packageToPath(const std::string &packageName)
     return path;
 }
 
-void ProjectGenerator::generate(const ProjectConfig &config)
+void ProjectGenerator::generate(const ProjectConfig &config, bool skipWrapper)
 {
-    std::string packageName =
-        config.groupId + "." +
-        ProjectNaming::toPackageName(config.name);
+    MavenWrapperGenerator mavenWrapperGenerator;
 
     fs::path projectPath = config.name;
 
@@ -48,7 +46,7 @@ void ProjectGenerator::generate(const ProjectConfig &config)
         );
     }
 
-    fs::path packagePath = packageToPath(packageName);
+    fs::path packagePath = packageToPath(config.packageName);
 
     fs::create_directories(
         projectPath /
@@ -84,7 +82,7 @@ void ProjectGenerator::generate(const ProjectConfig &config)
     }
 
     mainFile
-        << "package " << packageName << ";\n\n"
+        << "package " << config.packageName << ";\n\n"
         << "public class Main {\n"
         << "    public static void main(String[] args) {\n"
         << "        System.out.println(\"Hello from "
@@ -139,4 +137,10 @@ void ProjectGenerator::generate(const ProjectConfig &config)
         << "</project>\n";
 
     pomFile.close();
+
+    if (!skipWrapper)
+    {
+        mavenWrapperGenerator.generate(projectPath);
+    }
+
 }

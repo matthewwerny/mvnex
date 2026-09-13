@@ -5,5 +5,5 @@
 class ProjectGenerator
 {
 public:
-    static void generate(const ProjectConfig &config);
+    static void generate(const ProjectConfig &config, bool skipWrapper);
 };

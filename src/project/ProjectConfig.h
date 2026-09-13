@@ -6,5 +6,6 @@ struct ProjectConfig
 {
     std::string name;
     std::string groupId;
+    std::string packageName;
     std::string javaVersion;
 };

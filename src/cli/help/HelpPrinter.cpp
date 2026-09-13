@@ -13,7 +13,7 @@ void HelpPrinter::printGlobal()
         << "◆ "
         << Style::RESET
         << Style::BOLD
-        << "mvnx"
+        << "mvnex"
         << Style::RESET
         << "\n\n"
 
@@ -35,7 +35,7 @@ void HelpPrinter::printGlobal()
         << Style::DIM
         << "│  "
         << Style::RESET
-        << "mvnx <command> [options]\n"
+        << "mvnex <command> [options]\n"
 
         << Style::DIM
         << "│"
@@ -119,7 +119,7 @@ void HelpPrinter::printInit()
         << "◆ "
         << Style::RESET
         << Style::BOLD
-        << "mvnx init"
+        << "mvnex init"
         << Style::RESET
         << "\n\n"
 
@@ -135,7 +135,7 @@ void HelpPrinter::printInit()
         << Style::DIM
         << "│  "
         << Style::RESET
-        << "mvnx init [project-name] [options]\n\n"
+        << "mvnex init [project-name] [options]\n\n"
 
         << Style::CYAN
         << "◇ "
@@ -155,9 +155,23 @@ void HelpPrinter::printInit()
         << "│  "
         << Style::RESET
         << Style::CYAN
+        << "-p, --package <name>"
+        << Style::RESET
+        << "   Set Java package name\n"
+        << Style::DIM
+        << "│  "
+        << Style::RESET
+        << Style::CYAN
         << "-j, --java <version>"
         << Style::RESET
         << "    Set Java version\n"
+        << Style::DIM
+        << "│  "
+        << Style::RESET
+        << Style::CYAN
+        << "-w, --no-wrapper"
+        << Style::RESET
+        << "       Do not generate Maven Wrapper\n"
         << Style::DIM
         << "│  "
         << Style::RESET

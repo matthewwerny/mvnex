@@ -15,7 +15,13 @@ void expectValidation(const ProjectConfig &config, bool expectedValid)
 
     try
     {
-        ProjectValidator::validate(config);
+        ProjectConfig normalized = config;
+        if (normalized.packageName.empty())
+        {
+            normalized.packageName = normalized.groupId + ".demoapp";
+        }
+
+        ProjectValidator::validate(normalized);
     }
     catch (const std::invalid_argument &)
     {
@@ -48,29 +54,33 @@ int main()
     {
         for (const std::string groupId : {"_", "_.example", "com._.example", "com._"})
         {
-            expectValidation({"demo-app", groupId, version}, version == "8");
+            expectValidation({"demo-app", groupId, "", version}, version == "8");
         }
 
         for (const std::string groupId : {
                  "com.example", "com._foo", "com.foo_bar", "com.__"})
         {
-            expectValidation({"demo-app", groupId, version}, true);
+            expectValidation({"demo-app", groupId, "", version}, true);
         }
 
         for (const std::string groupId : {
                  "class.example", "com.class", "com.null", "com.true",
                  "", ".com", "com.", "com..example"})
         {
-            expectValidation({"demo-app", groupId, version}, false);
+            expectValidation({"demo-app", groupId, "", version}, false);
         }
 
-        expectValidation({"cl-ass", "com.example", version}, false);
+        expectValidation({"cl-ass", "com.example", "", version}, false);
     }
 
     for (const std::string version : {"", "9", "26"})
     {
-        expectValidation({"demo-app", "com.example", version}, false);
+        expectValidation({"demo-app", "com.example", "", version}, false);
     }
+
+    expectValidation({"demo-app", "com.example", "com.example.custom", "21"}, true);
+    expectValidation({"demo-app", "com.example", "class.example", "21"}, false);
+    expectValidation({"demo-app", "com.example", "com..example", "21"}, false);
 
     if (failures != 0)
     {
