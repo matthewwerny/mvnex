@@ -1,6 +1,6 @@
 #include "MavenWrapperGenerator.h"
 #include "MavenWrapperFiles.h"
-#include "cli/Style.h"
+#include "cli/output/Style.h"
 
 #include <chrono>
 #include <cstdlib>

@@ -137,7 +137,7 @@ Available options:
 -g, --group-id <id>       Set Maven groupId
 -p, --package <name>      Set Java package name
 -j, --java <version>      Set Java version
--w, --no-wrapper          Do not generate Maven Wrapper
+--no-wrapper             Do not generate Maven Wrapper
 -h, --help                Show init help
 ```
 

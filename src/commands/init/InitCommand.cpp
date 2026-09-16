@@ -1,8 +1,8 @@
 #include "InitCommand.h"
 
 #include "cli/arguments/ArgumentParser.h"
-#include "cli/help/HelpPrinter.h"
-#include "cli/Style.h"
+#include "cli/output/HelpPrinter.h"
+#include "cli/output/Style.h"
 #include "cli/prompt/Prompt.h"
 
 #include "project/ProjectConfig.h"
@@ -18,6 +18,11 @@
 #include <string>
 
 using namespace std;
+
+const CommandMetadata &InitCommand::metadata() const
+{
+    return metadata_;
+}
 
 static void printSummaryRow(const string &label, const string &value)
 {
@@ -118,7 +123,7 @@ int InitCommand::execute(int argc, char *argv[])
     parser.addOption({"package", 'p', true});
     parser.addOption({"java", 'j', true});
     parser.addOption({"help", 'h', false});
-    parser.addOption({"no-wrapper", 'w', false});
+    parser.addOption({"no-wrapper", 0, false});
 
     try
     {

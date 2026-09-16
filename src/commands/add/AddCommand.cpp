@@ -2,6 +2,11 @@
 #include "cli/arguments/ArgumentParser.h"
 #include <iostream>
 
+const CommandMetadata &AddCommand::metadata() const
+{
+    return metadata_;
+}
+
 int AddCommand::execute(int argc, char *argv[])
 {
     ArgumentParser parser(argc, argv, 2);

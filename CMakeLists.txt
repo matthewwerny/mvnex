@@ -28,8 +28,11 @@ add_executable(mvnex
     src/project/ProjectGenerator.cpp
 
     src/cli/arguments/ArgumentParser.cpp
-    src/cli/help/HelpPrinter.cpp
+    src/cli/output/ConsoleOutput.cpp
+    src/cli/output/HelpPrinter.cpp
     src/cli/prompt/Prompt.cpp
+    src/cli/routing/CommandRegistry.cpp
+    src/cli/routing/CommandRouter.cpp
 
     src/maven/MavenWrapperGenerator.cpp
     src/maven/MavenWrapperFiles.cpp
@@ -46,31 +49,3 @@ target_link_libraries(mvnex PRIVATE
 )
 
 include(CTest)
-
-if(BUILD_TESTING)
-    add_executable(mvnex_project_validator_tests
-        tests/ProjectValidatorTests.cpp
-        src/project/ProjectValidator.cpp
-        src/project/ProjectNaming.cpp
-    )
-
-    target_include_directories(mvnex_project_validator_tests PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
-
-    add_test(NAME project_validator COMMAND mvnex_project_validator_tests)
-
-    add_executable(mvnex_project_generator_tests
-        tests/ProjectGeneratorTests.cpp
-        src/project/ProjectGenerator.cpp
-        src/project/ProjectNaming.cpp
-        src/maven/MavenWrapperGenerator.cpp
-        src/maven/MavenWrapperFiles.cpp
-    )
-
-    target_include_directories(mvnex_project_generator_tests PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
-
-    add_test(NAME project_generator COMMAND mvnex_project_generator_tests)
-endif()

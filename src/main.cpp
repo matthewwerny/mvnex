@@ -1,41 +1,19 @@
-#include <iostream>
+#include "cli/routing/CommandRegistry.h"
+#include "cli/routing/CommandRouter.h"
+
 #include "commands/init/InitCommand.h"
 #include "commands/add/AddCommand.h"
-#include "cli/help/HelpPrinter.h"
 
-using namespace std;
+#include <memory>
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-    {
-        cout << "Usage: mvnex <command>\n";
-        return 0;
-    }
+    CommandRegistry registry;
 
-    string command = argv[1];
+    registry.registerCommand(std::make_shared<InitCommand>());
+    registry.registerCommand(std::make_shared<AddCommand>());
 
-    if (command == "--version" || command == "-v")
-    {
-        cout << "mvnex " << MVNEX_VERSION << '\n';
-        return 0;
-    }
-    else if (command == "--help" || command == "-h")
-    {
-        HelpPrinter::printGlobal();
-        return 0;
-    }
-    else if (command == "init")
-    {
-        InitCommand initCommand;
-        return initCommand.execute(argc, argv);
-    }
-    else if (command == "add")
-    {
-        AddCommand addCommand;
-        return addCommand.execute(argc, argv);
-    }
+    CommandRouter router(registry, MVNEX_VERSION);
 
-    cout << "Command not found: " << command << "\n";
-    return 0;
+    return router.execute(argc, argv);
 }

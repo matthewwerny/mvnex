@@ -1,13 +1,13 @@
-#include "HelpPrinter.h"
-#include "cli/Style.h"
+#include "cli/output/HelpPrinter.h"
+
+#include "cli/output/Style.h"
 
 #include <iostream>
+#include <iomanip>
 
-using namespace std;
-
-void HelpPrinter::printGlobal()
+void HelpPrinter::printGlobalHelp(const std::vector<std::shared_ptr<Command>> &commands) const
 {
-    cout
+    std::cout
         << "\n"
         << Style::CYAN
         << "◆ "
@@ -53,24 +53,24 @@ void HelpPrinter::printGlobal()
         << Style::DIM
         << "│"
         << Style::RESET
-        << "\n"
+        << "\n";
 
-        << Style::DIM
-        << "│  "
-        << Style::RESET
-        << Style::CYAN
-        << "init"
-        << Style::RESET
-        << "       Create a new Maven project\n"
+    for (const std::shared_ptr<Command> &command : commands)
+    {
+        std::cout
+            << Style::DIM
+            << "│  "
+            << Style::RESET
+            << Style::CYAN
+            << std::left
+            << std::setw(10)
+            << command->metadata().name
+            << Style::RESET
+            << command->metadata().description
+            << "\n";
+    }
 
-        << Style::DIM
-        << "│  "
-        << Style::RESET
-        << Style::CYAN
-        << "add"
-        << Style::RESET
-        << "        Add a dependency to the project\n"
-
+    std::cout
         << Style::DIM
         << "│"
         << Style::RESET
@@ -113,7 +113,7 @@ void HelpPrinter::printGlobal()
 
 void HelpPrinter::printInit()
 {
-    cout
+    std::cout
         << "\n"
         << Style::CYAN
         << "◆ "

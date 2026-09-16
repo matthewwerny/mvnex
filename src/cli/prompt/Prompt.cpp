@@ -1,5 +1,5 @@
 #include "Prompt.h"
-#include "cli/Style.h"
+#include "cli/output/Style.h"
 
 #include <iostream>
 #include <string>
