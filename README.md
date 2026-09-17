@@ -137,7 +137,7 @@ Available options:
 -g, --group-id <id>       Set Maven groupId
 -p, --package <name>      Set Java package name
 -j, --java <version>      Set Java version
---no-wrapper             Do not generate Maven Wrapper
+--no-wrapper              Do not generate Maven Wrapper
 -h, --help                Show init help
 ```
 
@@ -191,6 +191,33 @@ If the project was created with `--no-wrapper`, use local Maven instead:
 ```bash
 mvn package
 ```
+
+---
+
+# Internal architecture
+
+`mvnex` is organized as a small layered CLI application:
+
+```text
+src/
+├── application/
+│   ├── init/
+│   └── ports/
+├── domain/
+│   └── project/
+└── infrastructure/
+    ├── cli/
+    ├── filesystem/
+    ├── maven/
+    └── project/
+```
+
+- `application` contains use cases and ports.
+- `domain` contains project rules and domain models.
+- `infrastructure/cli` contains terminal commands, routing, prompts, help, and output.
+- `infrastructure/filesystem`, `infrastructure/maven`, and `infrastructure/project` contain concrete adapters.
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for more detail.
 
 ---
 
