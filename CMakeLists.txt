@@ -20,22 +20,30 @@ FetchContent_MakeAvailable(replxx)
 add_executable(mvnex
     src/main.cpp
 
-    src/commands/init/InitCommand.cpp
-    src/commands/add/AddCommand.cpp
+    src/application/init/InitUseCase.cpp
 
-    src/project/ProjectNaming.cpp
-    src/project/ProjectValidator.cpp
-    src/project/ProjectGenerator.cpp
+    src/infrastructure/cli/command/CommandMetadata.cpp
+    src/infrastructure/cli/commands/add/AddCommand.cpp
+    src/infrastructure/cli/commands/init/InitCommand.cpp
+    src/infrastructure/cli/commands/init/InitConfigCollector.cpp
 
-    src/cli/arguments/ArgumentParser.cpp
-    src/cli/output/ConsoleOutput.cpp
-    src/cli/output/HelpPrinter.cpp
-    src/cli/prompt/Prompt.cpp
-    src/cli/routing/CommandRegistry.cpp
-    src/cli/routing/CommandRouter.cpp
+    src/domain/project/ProjectNaming.cpp
+    src/domain/project/ProjectValidator.cpp
 
-    src/maven/MavenWrapperGenerator.cpp
-    src/maven/MavenWrapperFiles.cpp
+    src/infrastructure/project/ProjectGenerator.cpp
+    src/infrastructure/filesystem/FileSystem.cpp
+
+    src/infrastructure/cli/arguments/ArgumentParser.cpp
+    src/infrastructure/cli/output/ConsoleOutput.cpp
+    src/infrastructure/cli/output/ConsoleProgressReporter.cpp
+    src/infrastructure/cli/output/HelpPrinter.cpp
+    src/infrastructure/cli/prompt/Prompt.cpp
+    src/infrastructure/cli/routing/CommandRegistry.cpp
+    src/infrastructure/cli/routing/CommandRouter.cpp
+
+    src/infrastructure/maven/MavenWrapperGenerator.cpp
+    src/infrastructure/maven/MavenWrapperFiles.cpp
+    src/infrastructure/maven/LocalMavenChecker.cpp
 )
 
 target_include_directories(mvnex PRIVATE
