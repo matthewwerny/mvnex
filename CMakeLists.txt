@@ -21,10 +21,11 @@ FetchContent_Declare(
     GIT_TAG 1.11.2
 )
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-
 if(MSVC)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "" FORCE)
+else()
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 endif()
 
 if(APPLE)
