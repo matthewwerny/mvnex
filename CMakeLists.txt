@@ -23,6 +23,10 @@ FetchContent_Declare(
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "" FORCE)
+endif()
+
 if(APPLE)
     set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
 endif()
