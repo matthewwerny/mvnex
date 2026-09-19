@@ -21,6 +21,12 @@ FetchContent_Declare(
     GIT_TAG 1.11.2
 )
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+if(APPLE)
+    set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "" FORCE)
+endif()
+
 FetchContent_MakeAvailable(replxx cpr)
 
 add_executable(mvnex
