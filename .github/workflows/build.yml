@@ -79,4 +79,5 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          prerelease: true
           files: dist/*
