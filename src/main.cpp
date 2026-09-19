@@ -18,6 +18,7 @@
 #include "infrastructure/filesystem/FileSystem.h"
 #include "infrastructure/http/CprHttpClient.h"
 #include "infrastructure/maven/LocalMavenChecker.h"
+#include "infrastructure/maven/LocalMavenProjectValidator.h"
 #include "infrastructure/maven/MavenWrapperGenerator.h"
 #include "infrastructure/project/PomProjectDependencyRepository.h"
 #include "infrastructure/project/ProjectGenerator.h"
@@ -53,7 +54,11 @@ int main(int argc, char *argv[])
         std::cref(static_cast<const DependencyResolver &>(mavenCentralDependencyResolver)),
         std::cref(static_cast<const DependencyResolver &>(depsDevDependencyResolver))});
     PomProjectDependencyRepository projectDependencyRepository(fileSystem);
-    AddUseCase addUseCase(dependencyResolver, projectDependencyRepository);
+    LocalMavenProjectValidator mavenProjectValidator(fileSystem);
+    AddUseCase addUseCase(
+        dependencyResolver,
+        projectDependencyRepository,
+        mavenProjectValidator);
 
     CommandRegistry registry;
 

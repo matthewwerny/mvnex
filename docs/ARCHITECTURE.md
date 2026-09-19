@@ -70,6 +70,7 @@ src/
 │       ├── DependencyResolver.h
 │       ├── HttpClient.h
 │       ├── MavenChecker.h
+│       ├── MavenProjectValidator.h
 │       ├── ProgressReporter.h
 │       ├── ProjectCreator.h
 │       └── ProjectDependencyRepository.h
@@ -119,6 +120,8 @@ src/
     ├── maven/
     │   ├── LocalMavenChecker.h
     │   ├── LocalMavenChecker.cpp
+    │   ├── LocalMavenProjectValidator.h
+    │   ├── LocalMavenProjectValidator.cpp
     │   ├── MavenWrapperFiles.h
     │   ├── MavenWrapperFiles.cpp
     │   ├── MavenWrapperGenerator.h
@@ -171,7 +174,7 @@ domain/dependency/
 - coordinate, such as `org.projectlombok:lombok`
 - coordinate with version, such as `org.projectlombok:lombok:1.18.48`
 
-`ResolvedDependency` represents an exact Maven dependency that can be written to a POM: `groupId`, `artifactId`, and `version`.
+`ResolvedDependency` represents an exact Maven dependency that can be written to a POM: `groupId`, `artifactId`, `version`, and optional `scope`.
 
 ---
 
@@ -193,7 +196,7 @@ application/add/
 
 `InitUseCase` validates the requested project, creates it through the `ProjectCreator` port, checks local Maven through the `MavenChecker` port, and returns an `InitUseCaseResult`.
 
-`AddUseCase` resolves requested dependencies through the `DependencyResolver` port, checks existing project dependencies through the `ProjectDependencyRepository` port, adds missing dependencies, and returns which dependencies were added or skipped.
+`AddUseCase` resolves requested dependencies through the `DependencyResolver` port, checks existing project dependencies through the `ProjectDependencyRepository` port, adds missing dependencies, validates the project through the `MavenProjectValidator` port, and returns which dependencies were added or skipped.
 
 Current ports:
 
@@ -202,6 +205,7 @@ application/ports/
 ├── DependencyResolver.h
 ├── HttpClient.h
 ├── MavenChecker.h
+├── MavenProjectValidator.h
 ├── ProgressReporter.h
 ├── ProjectCreator.h
 └── ProjectDependencyRepository.h
@@ -368,8 +372,11 @@ AddUseCase
     │       ├── Maven Central search
     │       └── deps.dev coordinate fallback
     │
-    └── ProjectDependencyRepository port
-        └── PomProjectDependencyRepository
+    ├── ProjectDependencyRepository port
+    │   └── PomProjectDependencyRepository
+    │
+    └── MavenProjectValidator port
+        └── LocalMavenProjectValidator
 ```
 
 `DependencyArgumentsParser` is CLI infrastructure. It translates terminal input into domain requests before the application layer runs.
@@ -385,9 +392,13 @@ org.projectlombok:lombok:1.18.48       -> CoordinateWithVersion
 
 `CompositeDependencyResolver` asks multiple dependency providers and uses the best available result. Maven Central providers handle search terms and coordinates. The deps.dev adapter is a coordinate fallback.
 
+Dependency scopes are not resolved by providers. They come from CLI input, travel through `DependencyRequest`, and are attached by `AddUseCase` after dependency resolution.
+
 If dependency resolution returns several plausible matches, the application throws `MultipleDependencyMatches`. The CLI catches that error, shows a selector, and retries the use case with the selected exact coordinate.
 
 `PomProjectDependencyRepository` searches upward from the current directory for the nearest `pom.xml`. It loads existing dependencies into an in-memory set for fast duplicate checks, skips dependencies that already exist or were duplicated in the same command, and writes the remaining dependencies into the POM.
+
+`LocalMavenProjectValidator` validates the project after dependencies are added. It prefers `./mvnw validate`, falls back to `mvn validate`, and reports missing Maven as a warning-level result instead of making the add operation fail.
 
 Current POM editing is intentionally simple string-based insertion. Structural XML parsing and deeper Maven model awareness remain future work.
 

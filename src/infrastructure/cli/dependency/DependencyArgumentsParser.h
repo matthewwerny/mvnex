@@ -10,13 +10,15 @@ class DependencyArgumentsParser
 public:
     std::vector<DependencyRequest> parse(
         const std::vector<std::string> &dependencies,
-        const std::string &version
+        const std::string &version,
+        const std::string &scope
     ) const;
 
 private:
     DependencyRequest parseDependency(
         const std::string &dependency,
-        const std::string &version
+        const std::string &version,
+        const std::string &scope
     ) const;
 
     std::vector<std::string> splitDependency(
@@ -27,4 +29,6 @@ private:
         const std::string &inlineVersion,
         const std::string &optionVersion
     ) const;
+
+    void validateScope(const std::string &scope) const;
 };

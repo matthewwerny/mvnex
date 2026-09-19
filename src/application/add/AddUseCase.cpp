@@ -3,15 +3,32 @@
 #include "domain/dependency/ResolvedDependency.h"
 #include "application/errors/MultipleDependencyMatches.h"
 #include "application/ports/DependencyResolver.h"
+#include "application/ports/MavenProjectValidator.h"
 #include "application/ports/ProjectDependencyRepository.h"
 
 #include <unordered_set>
 #include <vector>
 
+namespace
+{
+ResolvedDependency withRequestedScope(
+    const ResolvedDependency &resolved,
+    const DependencyRequest &request)
+{
+    return ResolvedDependency(
+        resolved.groupId(),
+        resolved.artifactId(),
+        resolved.version(),
+        request.scope());
+}
+}
+
 AddUseCase::AddUseCase(
     const DependencyResolver &dependencyResolver,
-    const ProjectDependencyRepository &projectDependencyRepository) : dependencyResolver_(dependencyResolver),
-                                                                      projectDependencyRepository_(projectDependencyRepository)
+    const ProjectDependencyRepository &projectDependencyRepository,
+    const MavenProjectValidator &mavenProjectValidator) : dependencyResolver_(dependencyResolver),
+                                                          projectDependencyRepository_(projectDependencyRepository),
+                                                          mavenProjectValidator_(mavenProjectValidator)
 {
 }
 
@@ -33,14 +50,14 @@ AddUseCaseResponse AddUseCase::execute(const AddUseCaseRequest &request) const
             case DependencyRequestType::SearchTermWithVersion:
             {
                 ResolvedDependency resolved = dependencyResolver_.resolveBySearchTerm(dependency.query(), dependency.version());
-                resolvedDependencies.push_back(resolved);
+                resolvedDependencies.push_back(withRequestedScope(resolved, dependency));
                 break;
             }
             case DependencyRequestType::Coordinate:
             case DependencyRequestType::CoordinateWithVersion:
             {
                 ResolvedDependency resolved = dependencyResolver_.resolveByCoordinate(dependency.groupId(), dependency.artifactId(), dependency.version());
-                resolvedDependencies.push_back(resolved);
+                resolvedDependencies.push_back(withRequestedScope(resolved, dependency));
                 break;
             }
             }
@@ -83,7 +100,16 @@ AddUseCaseResponse AddUseCase::execute(const AddUseCaseRequest &request) const
         projectDependencyRepository_.addDependencies(dependenciesToAdd);
     }
 
+    MavenProjectValidationResult validationResult{
+        MavenProjectValidationStatus::MavenNotFound};
+
+    if (!dependenciesToAdd.empty())
+    {
+        validationResult = mavenProjectValidator_.validate();
+    }
+
     return AddUseCaseResponse{
         dependenciesToAdd,
-        skippedDependencies};
+        skippedDependencies,
+        validationResult};
 }

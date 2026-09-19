@@ -65,6 +65,7 @@ add_executable(mvnex
     src/infrastructure/maven/MavenWrapperGenerator.cpp
     src/infrastructure/maven/MavenWrapperFiles.cpp
     src/infrastructure/maven/LocalMavenChecker.cpp
+    src/infrastructure/maven/LocalMavenProjectValidator.cpp
 )
 
 target_include_directories(mvnex PRIVATE

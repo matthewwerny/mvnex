@@ -1,10 +1,13 @@
 #include "infrastructure/cli/dependency/DependencyArgumentsParser.h"
 
+#include <array>
+#include <algorithm>
 #include <stdexcept>
 
 std::vector<DependencyRequest> DependencyArgumentsParser::parse(
     const std::vector<std::string> &dependencies,
-    const std::string &version) const
+    const std::string &version,
+    const std::string &scope) const
 {
     if (dependencies.empty())
     {
@@ -16,12 +19,19 @@ std::vector<DependencyRequest> DependencyArgumentsParser::parse(
         throw std::invalid_argument("--version can only be used when adding a single dependency.");
     }
 
+    if (!scope.empty() && dependencies.size() > 1)
+    {
+        throw std::invalid_argument("--scope can only be used when adding a single dependency.");
+    }
+
+    validateScope(scope);
+
     std::vector<DependencyRequest> requests;
     requests.reserve(dependencies.size());
 
     for (const std::string &dependency : dependencies)
     {
-        requests.push_back(parseDependency(dependency, version));
+        requests.push_back(parseDependency(dependency, version, scope));
     }
 
     return requests;
@@ -29,7 +39,8 @@ std::vector<DependencyRequest> DependencyArgumentsParser::parse(
 
 DependencyRequest DependencyArgumentsParser::parseDependency(
     const std::string &dependency,
-    const std::string &optionVersion) const
+    const std::string &optionVersion,
+    const std::string &scope) const
 {
     std::vector<std::string> parts = splitDependency(dependency);
 
@@ -52,10 +63,10 @@ DependencyRequest DependencyArgumentsParser::parseDependency(
 
         if (version.empty())
         {
-            return DependencyRequest::searchTerm(parts[0]);
+            return DependencyRequest::searchTerm(parts[0], scope);
         }
 
-        return DependencyRequest::searchTermWithVersion(parts[0], version);
+        return DependencyRequest::searchTermWithVersion(parts[0], version, scope);
     }
 
     if (parts.size() == 2)
@@ -71,15 +82,15 @@ DependencyRequest DependencyArgumentsParser::parseDependency(
 
             if (version.empty())
             {
-                return DependencyRequest::coordinate(first, second);
+                return DependencyRequest::coordinate(first, second, scope);
             }
 
-            return DependencyRequest::coordinateWithVersion(first, second, version);
+            return DependencyRequest::coordinateWithVersion(first, second, version, scope);
         }
 
         std::string version = resolveVersion(second, optionVersion);
 
-        return DependencyRequest::searchTermWithVersion(first, version);
+        return DependencyRequest::searchTermWithVersion(first, version, scope);
     }
 
     const std::string &groupId = parts[0];
@@ -88,7 +99,7 @@ DependencyRequest DependencyArgumentsParser::parseDependency(
 
     std::string version = resolveVersion(inlineVersion, optionVersion);
 
-    return DependencyRequest::coordinateWithVersion(groupId, artifactId, version);
+    return DependencyRequest::coordinateWithVersion(groupId, artifactId, version, scope);
 }
 
 std::vector<std::string> DependencyArgumentsParser::splitDependency(
@@ -133,4 +144,33 @@ std::string DependencyArgumentsParser::resolveVersion(
     }
 
     return optionVersion;
+}
+
+void DependencyArgumentsParser::validateScope(const std::string &scope) const
+{
+    if (scope.empty())
+    {
+        return;
+    }
+
+    constexpr std::array<const char *, 6> validScopes = {
+        "compile",
+        "provided",
+        "runtime",
+        "test",
+        "system",
+        "import"};
+
+    bool isValidScope = std::any_of(
+        validScopes.begin(),
+        validScopes.end(),
+        [&scope](const char *validScope)
+        {
+            return scope == validScope;
+        });
+
+    if (!isValidScope)
+    {
+        throw std::invalid_argument("Invalid dependency scope: " + scope);
+    }
 }

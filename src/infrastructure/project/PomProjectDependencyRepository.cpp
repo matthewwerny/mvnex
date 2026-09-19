@@ -147,8 +147,14 @@ std::string PomProjectDependencyRepository::dependencyXml(const ResolvedDependen
         << "        <dependency>\n"
         << "            <groupId>" << dependency.groupId() << "</groupId>\n"
         << "            <artifactId>" << dependency.artifactId() << "</artifactId>\n"
-        << "            <version>" << dependency.version() << "</version>\n"
-        << "        </dependency>\n";
+        << "            <version>" << dependency.version() << "</version>\n";
+
+    if (!dependency.scope().empty())
+    {
+        xml << "            <scope>" << dependency.scope() << "</scope>\n";
+    }
+
+    xml << "        </dependency>\n";
 
     return xml.str();
 }

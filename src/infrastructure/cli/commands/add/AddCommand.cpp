@@ -70,7 +70,14 @@ AddCommand::AddCommand(
                          "Set dependency version",
                          true});
 
+    metadata_.addOption({"scope",
+                         's',
+                         "scope",
+                         "Set dependency scope",
+                         true});
+
     metadata_.addExample("mvnex add lombok");
+    metadata_.addExample("mvnex add junit-jupiter --scope test");
     metadata_.addExample("mvnex add lombok:1.18.48");
     metadata_.addExample("mvnex add org.postgresql:postgresql");
     metadata_.addExample("mvnex add org.projectlombok:lombok:1.18.48");
@@ -119,11 +126,20 @@ int AddCommand::execute(int argc, char *argv[])
         return 1;
     }
 
+    if (parser.hasOption("scope") && dependencies.size() > 1)
+    {
+        consoleOutput_.printError("--scope can only be used when adding a single dependency.");
+        return 1;
+    }
+
     std::vector<DependencyRequest> parsedDependencies;
 
     try
     {
-        parsedDependencies = dependencyArgumentsParser_.parse(dependencies, parser.getOption("version"));
+        parsedDependencies = dependencyArgumentsParser_.parse(
+            dependencies,
+            parser.getOption("version"),
+            parser.getOption("scope"));
     }
     catch (const std::exception &e)
     {
@@ -183,7 +199,9 @@ int AddCommand::execute(int argc, char *argv[])
                 }
 
                 pendingDependencies[error.dependencyIndex()] =
-                    DependencyRequest::searchTerm(searchTerm);
+                    DependencyRequest::searchTerm(
+                        searchTerm,
+                        pendingDependencies[error.dependencyIndex()].scope());
                 continue;
             }
 
@@ -202,7 +220,8 @@ int AddCommand::execute(int argc, char *argv[])
                 DependencyRequest::coordinateWithVersion(
                     dependency.groupId(),
                     dependency.artifactId(),
-                    dependency.version());
+                    dependency.version(),
+                    pendingDependencies[error.dependencyIndex()].scope());
         }
         catch (const DependencyNotFound &error)
         {
@@ -224,6 +243,11 @@ int AddCommand::execute(int argc, char *argv[])
     consoleOutput_.printAddDependencySummary(
         response.addedDependencies,
         response.skippedDependencies);
+
+    if (!response.addedDependencies.empty())
+    {
+        consoleOutput_.printMavenValidationResult(response.validationResult);
+    }
 
     return 0;
 }

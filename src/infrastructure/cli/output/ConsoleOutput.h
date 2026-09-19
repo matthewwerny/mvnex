@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "infrastructure/cli/command/CommandMetadata.h"
+#include "application/ports/MavenProjectValidator.h"
 #include "domain/dependency/ResolvedDependency.h"
 #include "domain/project/ProjectConfig.h"
 
@@ -22,4 +23,6 @@ public:
     void printAddDependencySummary(
         const std::vector<ResolvedDependency> &addedDependencies,
         const std::vector<ResolvedDependency> &skippedDependencies) const;
+    void printMavenValidationResult(
+        const MavenProjectValidationResult &validationResult) const;
 };

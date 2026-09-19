@@ -200,6 +200,7 @@ mvnex add lombok
 mvnex add lombok:1.18.32
 mvnex add org.projectlombok:lombok
 mvnex add org.projectlombok:lombok:1.18.32
+mvnex add junit-jupiter --scope test
 ```
 
 `mvnex add` can run from the project root or from a nested directory inside the
@@ -219,12 +220,20 @@ is ambiguous, `mvnex` shows an interactive selector:
 If a dependency already exists in the current `pom.xml`, it is skipped instead
 of being duplicated.
 
+After adding dependencies, `mvnex` validates the project with Maven. It prefers
+the project wrapper (`./mvnw validate`) when available, falls back to
+`mvn validate`, and prints a warning instead of failing when Maven is not
+available.
+
 Available options:
 
 ```text
 -v, --version <version>   Set dependency version
+-s, --scope <scope>       Set dependency scope
 -h, --help                Show add help
 ```
+
+`--version` and `--scope` apply to a single dependency at a time.
 
 ---
 
@@ -368,6 +377,7 @@ The goal would be to make the JDK required by a project easier to discover and c
 - [x] Interactive artifact selection
 - [x] `mvnex add`
 - [x] Explicit dependency versions
+- [x] Dependency scopes
 - [x] Multiple dependencies per command
 - [x] Duplicate dependency detection
 - [ ] `mvnex remove`

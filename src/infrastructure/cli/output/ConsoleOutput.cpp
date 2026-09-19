@@ -9,9 +9,17 @@ namespace
 {
 std::string formatDependency(const ResolvedDependency &dependency)
 {
-    return dependency.groupId() + ":" +
-           dependency.artifactId() + ":" +
-           dependency.version();
+    std::string formatted =
+        dependency.groupId() + ":" +
+        dependency.artifactId() + ":" +
+        dependency.version();
+
+    if (!dependency.scope().empty())
+    {
+        formatted += " [" + dependency.scope() + "]";
+    }
+
+    return formatted;
 }
 
 void printSummaryRow(const std::string &label, const std::string &value)
@@ -182,4 +190,28 @@ void ConsoleOutput::printAddDependencySummary(
     }
 
     std::cout << '\n';
+}
+
+void ConsoleOutput::printMavenValidationResult(
+    const MavenProjectValidationResult &validationResult) const
+{
+    switch (validationResult.status)
+    {
+    case MavenProjectValidationStatus::Passed:
+        std::cout
+            << Style::DIM
+            << "│  "
+            << Style::RESET
+            << "✓ Maven validate passed"
+            << "\n\n";
+        break;
+
+    case MavenProjectValidationStatus::Failed:
+        printError("Maven validate failed. Check the project output with mvn validate.");
+        break;
+
+    case MavenProjectValidationStatus::MavenNotFound:
+        printWarning("Maven was not found. Skipping project validation.");
+        break;
+    }
 }
