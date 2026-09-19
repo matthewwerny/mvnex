@@ -4,11 +4,11 @@ This document describes the current internal architecture of `mvnex`.
 
 The project is organized as a small layered CLI application:
 
-- `domain` contains project rules and domain models.
-- `application` contains use cases and ports.
-- `infrastructure` contains concrete adapters such as CLI, filesystem, Maven, and project generation.
+- `domain` contains project and dependency models/rules.
+- `application` contains use cases, ports, and application-level errors.
+- `infrastructure` contains concrete adapters such as CLI, filesystem, HTTP, dependency resolution, Maven, and project generation.
 
-The goal is to keep terminal concerns, application orchestration, project rules, Maven integration, filesystem operations, and project generation separated.
+The goal is to keep terminal concerns, application orchestration, domain rules, dependency resolution, Maven integration, filesystem operations, and project generation separated.
 
 ---
 
@@ -32,15 +32,16 @@ The goal is to keep terminal concerns, application orchestration, project rules,
               ┌─────────────┼─────────────┐
               ▼             ▼             ▼
           domain       infrastructure  infrastructure
-          project      project         maven/filesystem
-          rules        generation      adapters
+          models       project         dependency/http/
+                       generation      maven/filesystem
+                                       adapters
 ```
 
 CLI commands adapt terminal input into application requests.
 
 Use cases coordinate domain validation and infrastructure ports.
 
-Infrastructure adapters implement concrete terminal, filesystem, Maven, and project generation behavior.
+Infrastructure adapters implement concrete terminal, filesystem, HTTP, dependency resolver, Maven, POM editing, and project generation behavior.
 
 ---
 
@@ -51,16 +52,35 @@ src/
 ├── main.cpp
 │
 ├── application/
+│   ├── add/
+│   │   ├── AddUseCase.h
+│   │   └── AddUseCase.cpp
+│   │
+│   ├── errors/
+│   │   ├── DependencyNotFound.h
+│   │   ├── DependencyResolutionError.h
+│   │   ├── DependencyResolverUnavailable.h
+│   │   └── MultipleDependencyMatches.h
+│   │
 │   ├── init/
 │   │   ├── InitUseCase.h
 │   │   └── InitUseCase.cpp
 │   │
 │   └── ports/
+│       ├── DependencyResolver.h
+│       ├── HttpClient.h
 │       ├── MavenChecker.h
 │       ├── ProgressReporter.h
-│       └── ProjectCreator.h
+│       ├── ProjectCreator.h
+│       └── ProjectDependencyRepository.h
 │
 ├── domain/
+│   ├── dependency/
+│   │   ├── DependencyRequest.h
+│   │   ├── DependencyRequest.cpp
+│   │   ├── ResolvedDependency.h
+│   │   └── ResolvedDependency.cpp
+│   │
 │   └── project/
 │       ├── ProjectConfig.h
 │       ├── ProjectNaming.h
@@ -75,13 +95,26 @@ src/
     │   ├── commands/
     │   │   ├── add/
     │   │   └── init/
+    │   ├── dependency/
     │   ├── output/
     │   ├── prompt/
     │   └── routing/
     │
+    ├── dependency/
+    │   ├── CompositeDependencyResolver.h
+    │   ├── CompositeDependencyResolver.cpp
+    │   ├── DepsDevDependencyResolver.h
+    │   ├── DepsDevDependencyResolver.cpp
+    │   ├── MavenCentralDependencyResolver.h
+    │   └── MavenCentralDependencyResolver.cpp
+    │
     ├── filesystem/
     │   ├── FileSystem.h
     │   └── FileSystem.cpp
+    │
+    ├── http/
+    │   ├── CprHttpClient.h
+    │   └── CprHttpClient.cpp
     │
     ├── maven/
     │   ├── LocalMavenChecker.h
@@ -92,6 +125,8 @@ src/
     │   └── MavenWrapperGenerator.cpp
     │
     └── project/
+        ├── PomProjectDependencyRepository.h
+        ├── PomProjectDependencyRepository.cpp
         ├── ProjectGenerator.h
         └── ProjectGenerator.cpp
 ```
@@ -121,6 +156,23 @@ domain/project/
 
 `ProjectValidator` validates project names, Java package names, group IDs, and supported Java versions.
 
+```text
+domain/dependency/
+├── DependencyRequest.h
+├── DependencyRequest.cpp
+├── ResolvedDependency.h
+└── ResolvedDependency.cpp
+```
+
+`DependencyRequest` represents what the user asked for before resolution:
+
+- search term, such as `lombok`
+- search term with version, such as `lombok:1.18.48`
+- coordinate, such as `org.projectlombok:lombok`
+- coordinate with version, such as `org.projectlombok:lombok:1.18.48`
+
+`ResolvedDependency` represents an exact Maven dependency that can be written to a POM: `groupId`, `artifactId`, and `version`.
+
 ---
 
 # Application Layer
@@ -133,20 +185,36 @@ Current use cases:
 application/init/
 ├── InitUseCase.h
 └── InitUseCase.cpp
+
+application/add/
+├── AddUseCase.h
+└── AddUseCase.cpp
 ```
 
 `InitUseCase` validates the requested project, creates it through the `ProjectCreator` port, checks local Maven through the `MavenChecker` port, and returns an `InitUseCaseResult`.
+
+`AddUseCase` resolves requested dependencies through the `DependencyResolver` port, checks existing project dependencies through the `ProjectDependencyRepository` port, adds missing dependencies, and returns which dependencies were added or skipped.
 
 Current ports:
 
 ```text
 application/ports/
+├── DependencyResolver.h
+├── HttpClient.h
 ├── MavenChecker.h
 ├── ProgressReporter.h
-└── ProjectCreator.h
+├── ProjectCreator.h
+└── ProjectDependencyRepository.h
 ```
 
-Ports keep application code independent from concrete filesystem, Maven, project generation, and terminal implementations.
+Ports keep application code independent from concrete filesystem, Maven, HTTP, dependency provider, POM editing, project generation, and terminal implementations.
+
+Application errors under `application/errors` describe dependency-resolution failures in use-case terms:
+
+- dependency not found
+- dependency resolver unavailable
+- multiple dependency matches
+- generic dependency resolution failure
 
 ---
 
@@ -161,6 +229,7 @@ infrastructure/cli/
 ├── arguments/
 ├── command/
 ├── commands/
+├── dependency/
 ├── output/
 ├── prompt/
 └── routing/
@@ -212,6 +281,16 @@ They should not write project files, run Maven directly, or contain low-level do
 - collects missing project config through `InitConfigCollector`
 - asks interactive wrapper questions when needed
 - calls `InitUseCase`
+- delegates display to output adapters
+
+`AddCommand` currently:
+
+- registers dependency-related command metadata and options
+- parses CLI arguments
+- translates dependency expressions with `DependencyArgumentsParser`
+- calls `AddUseCase`
+- handles ambiguous dependency matches with an interactive selector
+- allows searching again when candidates are not useful
 - delegates display to output adapters
 
 ## Output
@@ -272,6 +351,48 @@ infrastructure/maven/LocalMavenChecker
 
 ---
 
+# Dependency Add Flow
+
+```text
+AddCommand
+    │
+    ▼
+DependencyArgumentsParser
+    │
+    ▼
+AddUseCase
+    │
+    ├── DependencyResolver port
+    │   └── CompositeDependencyResolver
+    │       ├── Sonatype Central search
+    │       ├── Maven Central search
+    │       └── deps.dev coordinate fallback
+    │
+    └── ProjectDependencyRepository port
+        └── PomProjectDependencyRepository
+```
+
+`DependencyArgumentsParser` is CLI infrastructure. It translates terminal input into domain requests before the application layer runs.
+
+Examples:
+
+```text
+lombok                                  -> SearchTerm
+lombok:1.18.48                         -> SearchTermWithVersion
+org.projectlombok:lombok               -> Coordinate
+org.projectlombok:lombok:1.18.48       -> CoordinateWithVersion
+```
+
+`CompositeDependencyResolver` asks multiple dependency providers and uses the best available result. Maven Central providers handle search terms and coordinates. The deps.dev adapter is a coordinate fallback.
+
+If dependency resolution returns several plausible matches, the application throws `MultipleDependencyMatches`. The CLI catches that error, shows a selector, and retries the use case with the selected exact coordinate.
+
+`PomProjectDependencyRepository` searches upward from the current directory for the nearest `pom.xml`. It loads existing dependencies into an in-memory set for fast duplicate checks, skips dependencies that already exist or were duplicated in the same command, and writes the remaining dependencies into the POM.
+
+Current POM editing is intentionally simple string-based insertion. Structural XML parsing and deeper Maven model awareness remain future work.
+
+---
+
 # Dependency Direction
 
 Preferred dependency direction:
@@ -316,29 +437,12 @@ Existing user directories must never be deleted as part of rollback.
 
 ---
 
-# Future Dependency Domain
+# Future Dependency Work
 
-Dependency input should be represented independently from Maven Central or XML.
+The dependency architecture is in place, but several areas should become more robust:
 
-Possible future structure:
-
-```text
-domain/dependency/
-├── DependencyRequest.h
-├── DependencyParser.h
-└── ResolvedDependency.h
-
-application/add/
-├── AddDependencyUseCase.h
-└── AddDependencyUseCase.cpp
-
-application/ports/
-├── DependencyResolver.h
-└── PomEditor.h
-
-infrastructure/maven/
-├── MavenCentralClient.*
-└── PomXmlEditor.*
-```
-
-The goal is the same as `init`: keep CLI parsing, application orchestration, domain rules, and infrastructure details separate.
+- replace string-based POM editing with structural XML parsing
+- support `dependencyManagement`
+- understand parent POMs and multi-module projects
+- improve dependency ranking and provider scoring
+- add `remove`, `update`, and `outdated` on top of the same dependency model and project repository port

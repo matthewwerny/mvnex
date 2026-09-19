@@ -8,7 +8,6 @@
 mvnex init my-app
 cd my-app
 
-# Planned
 mvnex add lombok
 mvnex add org.postgresql:postgresql
 ```
@@ -192,6 +191,41 @@ If the project was created with `--no-wrapper`, use local Maven instead:
 mvn package
 ```
 
+## `mvnex add`
+
+Add dependencies to an existing Maven project:
+
+```bash
+mvnex add lombok
+mvnex add lombok:1.18.32
+mvnex add org.projectlombok:lombok
+mvnex add org.projectlombok:lombok:1.18.32
+```
+
+`mvnex add` can run from the project root or from a nested directory inside the
+project. It searches upward for the nearest `pom.xml` and updates that file.
+
+Short dependency names are resolved through Maven metadata providers. If a term
+is ambiguous, `mvnex` shows an interactive selector:
+
+```text
+◇  Select dependency for lombok
+│  › org.projectlombok:lombok:1.18.48
+│    io.github.valuya:lombok:1.18.46.4
+│    name.remal.gradle-plugins.lombok:lombok:3.2.0
+│    Search again...
+```
+
+If a dependency already exists in the current `pom.xml`, it is skipped instead
+of being duplicated.
+
+Available options:
+
+```text
+-v, --version <version>   Set dependency version
+-h, --help                Show add help
+```
+
 ---
 
 # Internal architecture
@@ -228,35 +262,24 @@ The following commands describe the direction of the project and are **not neces
 ## Dependencies
 
 ```bash
-mvnex add lombok
-mvnex add lombok:1.18.48
-mvnex add org.projectlombok:lombok
-mvnex add org.projectlombok:lombok:1.18.48
-
 mvnex remove lombok
 
 mvnex update
 mvnex outdated
 ```
 
-Short dependency names should be resolved through Maven Central when possible.
+`mvnex update` is intended to mean "change the dependency version", not
+necessarily "upgrade to a newer version". This means both upgrades and
+downgrades should be valid:
 
-For ambiguous artifacts, `mvnex` should allow the developer to choose:
-
-```text
-◇  Multiple artifacts found
-│
-│  com.google.inject:guice
-│  io.github.replay-framework:guice
-│  com.codeborne.replay:guice
-│
-◇  Select dependency
-│  › com.google.inject:guice
+```bash
+mvnex update lombok --version 1.18.48
+mvnex update lombok --version 1.18.20
 ```
 
-Explicit Maven coordinates should always be supported.
-
----
+If `mvnex` eventually needs a command that only moves dependencies forward to a
+newer available version, that behavior should live in a separate command such as
+`mvnex upgrade`.
 
 ## Install
 
@@ -339,14 +362,14 @@ The goal would be to make the JDK required by a project easier to discover and c
 
 ## Dependencies
 
-- [ ] Dependency expression parser
-- [ ] Maven Central search
-- [ ] Maven metadata resolution
-- [ ] Interactive artifact selection
-- [ ] `mvnex add`
-- [ ] Explicit dependency versions
-- [ ] Multiple dependencies per command
-- [ ] Duplicate dependency detection
+- [x] Dependency expression parser
+- [x] Maven Central search
+- [x] Maven metadata resolution
+- [x] Interactive artifact selection
+- [x] `mvnex add`
+- [x] Explicit dependency versions
+- [x] Multiple dependencies per command
+- [x] Duplicate dependency detection
 - [ ] `mvnex remove`
 - [ ] `mvnex update`
 - [ ] `mvnex outdated`

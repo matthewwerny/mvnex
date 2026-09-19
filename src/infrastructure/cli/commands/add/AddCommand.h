@@ -4,13 +4,19 @@
 
 class ConsoleOutput;
 class HelpPrinter;
+class DependencyArgumentsParser;
+class Prompt;
+class AddUseCase;
 
 class AddCommand : public Command
 {
 public:
     AddCommand(
         HelpPrinter &helpPrinter,
-        ConsoleOutput &consoleOutput);
+        ConsoleOutput &consoleOutput,
+        DependencyArgumentsParser &dependencyArgumentsParser,
+        Prompt &prompt,
+        AddUseCase &addUseCase);
 
     const CommandMetadata &metadata() const override;
     int execute(int argc, char *argv[]) override;
@@ -18,6 +24,9 @@ public:
 private:
     HelpPrinter &helpPrinter_;
     ConsoleOutput &consoleOutput_;
+    DependencyArgumentsParser &dependencyArgumentsParser_;
+    Prompt &prompt_;
+    AddUseCase &addUseCase_;
 
     CommandMetadata metadata_{
         "add",

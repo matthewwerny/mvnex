@@ -15,11 +15,23 @@ FetchContent_Declare(
     GIT_TAG master
 )
 
-FetchContent_MakeAvailable(replxx)
+FetchContent_Declare(
+    cpr
+    GIT_REPOSITORY https://github.com/libcpr/cpr.git
+    GIT_TAG 1.11.2
+)
+
+FetchContent_MakeAvailable(replxx cpr)
 
 add_executable(mvnex
     src/main.cpp
 
+    src/application/errors/DependencyResolutionError.cpp
+    src/application/errors/DependencyNotFound.cpp
+    src/application/errors/DependencyResolverUnavailable.cpp
+    src/application/errors/MultipleDependencyMatches.cpp
+
+    src/application/add/AddUseCase.cpp
     src/application/init/InitUseCase.cpp
 
     src/infrastructure/cli/command/CommandMetadata.cpp
@@ -27,11 +39,20 @@ add_executable(mvnex
     src/infrastructure/cli/commands/init/InitCommand.cpp
     src/infrastructure/cli/commands/init/InitConfigCollector.cpp
 
+    src/domain/dependency/DependencyRequest.cpp
+    src/domain/dependency/ResolvedDependency.cpp
+    src/infrastructure/cli/dependency/DependencyArgumentsParser.cpp
+    src/infrastructure/dependency/CompositeDependencyResolver.cpp
+    src/infrastructure/dependency/DepsDevDependencyResolver.cpp
+    src/infrastructure/dependency/MavenCentralDependencyResolver.cpp
+
     src/domain/project/ProjectNaming.cpp
     src/domain/project/ProjectValidator.cpp
 
     src/infrastructure/project/ProjectGenerator.cpp
+    src/infrastructure/project/PomProjectDependencyRepository.cpp
     src/infrastructure/filesystem/FileSystem.cpp
+    src/infrastructure/http/CprHttpClient.cpp
 
     src/infrastructure/cli/arguments/ArgumentParser.cpp
     src/infrastructure/cli/output/ConsoleOutput.cpp
@@ -54,6 +75,7 @@ target_compile_definitions(mvnex PRIVATE MVNEX_VERSION="${PROJECT_VERSION}")
 
 target_link_libraries(mvnex PRIVATE
     replxx
+    cpr::cpr
 )
 
 include(CTest)

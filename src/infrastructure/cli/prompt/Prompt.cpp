@@ -186,5 +186,11 @@ string Prompt::select(
         return "";
     }
 
+    cout
+        << Style::DIM
+        << "│"
+        << Style::RESET
+        << "\n";
+
     return options[selected];
 }

@@ -1,6 +1,7 @@
 #include "infrastructure/filesystem/FileSystem.h"
 
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 
 bool FileSystem::exists(const std::filesystem::path &path) const
@@ -11,6 +12,21 @@ bool FileSystem::exists(const std::filesystem::path &path) const
 void FileSystem::createDirectories(const std::filesystem::path &path) const
 {
     std::filesystem::create_directories(path);
+}
+
+std::string FileSystem::readFile(const std::filesystem::path &path) const
+{
+    std::ifstream file(path);
+
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Could not read " + path.string());
+    }
+
+    std::ostringstream content;
+    content << file.rdbuf();
+
+    return content.str();
 }
 
 void FileSystem::writeFile(const std::filesystem::path &path, const std::string &content) const

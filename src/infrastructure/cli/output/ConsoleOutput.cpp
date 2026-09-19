@@ -3,9 +3,17 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace
 {
+std::string formatDependency(const ResolvedDependency &dependency)
+{
+    return dependency.groupId() + ":" +
+           dependency.artifactId() + ":" +
+           dependency.version();
+}
+
 void printSummaryRow(const std::string &label, const std::string &value)
 {
     std::cout
@@ -108,4 +116,70 @@ void ConsoleOutput::printProjectCreated(const ProjectConfig &config, bool skipWr
 
     std::cout << "  cd " << config.name << '\n';
     std::cout << (skipWrapper ? "  mvn package\n\n" : "  ./mvnw package\n\n");
+}
+
+void ConsoleOutput::printAddDependencySummary(
+    const std::vector<ResolvedDependency> &addedDependencies,
+    const std::vector<ResolvedDependency> &skippedDependencies) const
+{
+    if (!addedDependencies.empty())
+    {
+        std::cout
+            << '\n'
+            << Style::CYAN
+            << "◆ "
+            << Style::RESET
+            << Style::BOLD
+            << "Dependencies added"
+            << Style::RESET
+            << "\n";
+
+        for (const ResolvedDependency &dependency : addedDependencies)
+        {
+            std::cout
+                << Style::DIM
+                << "│  "
+                << Style::RESET
+                << "✓ "
+                << formatDependency(dependency)
+                << '\n';
+        }
+    }
+
+    if (!skippedDependencies.empty())
+    {
+        std::cout
+            << '\n'
+            << Style::CYAN
+            << "◆ "
+            << Style::RESET
+            << Style::BOLD
+            << "Dependencies skipped"
+            << Style::RESET
+            << "\n";
+
+        for (const ResolvedDependency &dependency : skippedDependencies)
+        {
+            std::cout
+                << Style::DIM
+                << "│  "
+                << Style::RESET
+                << "- "
+                << formatDependency(dependency)
+                << " already exists or was duplicated in this command"
+                << '\n';
+        }
+    }
+
+    if (addedDependencies.empty() && skippedDependencies.empty())
+    {
+        std::cout
+            << '\n'
+            << Style::YELLOW
+            << "⚠ "
+            << Style::RESET
+            << "No dependencies changed.\n";
+    }
+
+    std::cout << '\n';
 }

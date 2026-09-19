@@ -42,6 +42,10 @@ void ArgumentParser::parse() {
                 throw std::runtime_error("Unknown option: " + current);
             }
 
+            if (options.contains(option->name)) {
+                throw std::runtime_error("Option already provided: " + current);
+            }
+
             if (option->requiresValue) {
                 if (i + 1 >= argc || std::string(argv[i + 1]).starts_with("-")) {
                     throw std::runtime_error(
@@ -65,6 +69,10 @@ void ArgumentParser::parse() {
 
             if (option == nullptr) {
                 throw std::runtime_error("Unknown option: " + current);
+            }
+
+            if (options.contains(option->name)) {
+                throw std::runtime_error("Option already provided: " + current);
             }
 
             if (option->requiresValue) {
