@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
 project(mvnex VERSION 0.1.0 LANGUAGES CXX)
 
@@ -89,5 +89,14 @@ target_link_libraries(mvnex PRIVATE
     replxx
     cpr::cpr
 )
+
+if(WIN32)
+    add_custom_command(TARGET mvnex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:mvnex>
+            $<TARGET_FILE_DIR:mvnex>
+        COMMAND_EXPAND_LISTS
+    )
+endif()
 
 include(CTest)
