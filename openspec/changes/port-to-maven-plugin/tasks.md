@@ -9,12 +9,12 @@
 
 ## 2. Plugin project scaffolding
 
-- [ ] 2.1 Create root `pom.xml`: `com.sebas3261:ex-maven-plugin:0.2.0-SNAPSHOT`, packaging `maven-plugin`, `maven.compiler.release` 17, UTF-8, Apache-2.0 license, SCM/URL metadata
-- [ ] 2.2 Add provided deps `maven-plugin-api` 3.9.16, `maven-core` 3.9.16, `maven-plugin-annotations` 3.16.0, `maven-resolver-api`/`-spi`/`-util` 1.9.27 (the version bundled with Maven 3.9.16); compile deps `plexus-interactivity-api` 1.6.0, `jackson-databind` 2.22.2; test deps `junit-jupiter` 6.1.3, `wiremock` 3.13.2, `maven-plugin-testing-harness` 3.5.1
-- [ ] 2.3 Configure `maven-plugin-plugin` 3.16.0 with `<goalPrefix>ex</goalPrefix>`, `helpmojo` generation, `<extractors><extractor>java-annotations</extractor></extractors>` (design D16), `requiredJavaVersion` 17 and `requiredMavenVersion` 3.9.0 (design D14); verify `mvn ex:help` lists `help` from a local install, and that a throwaway mojo using only a Javadoc `@goal` tag does not appear in the generated `plugin.xml`
-- [ ] 2.4 Configure `maven-dependency-plugin:unpack` of `maven-wrapper-distribution:3.3.4:zip:only-script` (`mvnw`, `mvnw.cmd` only) into `target/generated-resources/wrapper/` and register it as a resource directory (design D11)
-- [ ] 2.5 Configure `maven-invoker-plugin` 3.10.1 (`src/it`, batch mode, `install` + `run` goals) and a WireMock lifecycle for ITs
-- [ ] 2.6 Add `.gitignore` entries for `target/`; confirm `mvn -B verify` passes on the empty skeleton while CMake still builds
+- [x] 2.1 Create root `pom.xml`: `com.sebas3261:ex-maven-plugin:0.2.0-SNAPSHOT`, packaging `maven-plugin`, `maven.compiler.release` 17, UTF-8, Apache-2.0 license, SCM/URL metadata
+- [x] 2.2 Add provided deps `maven-plugin-api` 3.9.16, `maven-core` 3.9.16, `maven-plugin-annotations` 3.16.0, `maven-resolver-api`/`-spi`/`-util` 1.9.27 (the version bundled with Maven 3.9.16); compile deps `plexus-interactivity-api` 1.6.0, `jackson-databind` 2.22.2; test deps `junit-jupiter` 6.1.3, `wiremock` 3.13.2, `maven-plugin-testing-harness` 3.5.1
+- [x] 2.3 Configure `maven-plugin-plugin` 3.16.0 with `<goalPrefix>ex</goalPrefix>`, `helpmojo` generation, `<extractors><extractor>java-annotations</extractor></extractors>` (design D16), `requiredJavaVersion` 17 and `requiredMavenVersion` 3.9.0 (design D14); verify `mvn ex:help` lists `help` from a local install, and that a throwaway mojo using only a Javadoc `@goal` tag does not appear in the generated `plugin.xml`
+- [x] 2.4 Configure `maven-dependency-plugin:unpack` of `maven-wrapper-distribution:3.3.4:zip:only-script` (`mvnw`, `mvnw.cmd` only) into `target/generated-resources/wrapper/` and register it as a resource directory (design D11)
+- [x] 2.5 Configure `maven-invoker-plugin` 3.10.1 (`src/it`, batch mode, `install` + `run` goals) and a WireMock lifecycle for ITs
+- [x] 2.6 Add `.gitignore` entries for `target/`; confirm `mvn -B verify` passes on the empty skeleton while CMake still builds
 
 ## 3. Domain layer
 
