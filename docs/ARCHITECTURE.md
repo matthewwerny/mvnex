@@ -119,4 +119,4 @@ request ──► │ Sonatype Central search │ search.maven.org │ deps.dev 
 - **Unit tests (`mvn test`):** validation tables, the dependency grammar, ranking and version selection, proxy rules, the flows driven by a scripted `Interaction`, and byte-for-byte golden tests. The goldens in `src/test/resources/golden` were recorded from the original C++ CLI.
 - **Recorded HTTP responses** (`src/test/resources/http`) are served by WireMock.
 - **Integration tests (`mvn verify`):** maven-invoker-plugin projects under `src/it` run the installed plugin through a real Maven. They cover every goal, interactive input, mirrors, an authenticating proxy, and the settings round trip.
-- `openspec/changes/port-to-maven-plugin/coverage.md` maps every spec scenario to its test.
+- `openspec/changes/archive/2026-09-21-port-to-maven-plugin/coverage.md` maps every spec scenario to its test.

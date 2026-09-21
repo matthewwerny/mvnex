@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`mvnex` is a Maven plugin, `com.sebas3261:ex-maven-plugin` (goal prefix `ex`), that adds an npm-like developer experience to Maven: `mvn ex:init`, `mvn ex:add`, plus `setup`/`uninstall` to register the `ex:` prefix in `settings.xml`. Core rule: **mvnex enhances Maven, it doesn't replace it**: `pom.xml` stays the source of truth and generated/edited projects stay plain Maven projects. It is a port of an earlier C++ CLI; the behavior spec lives in `openspec/changes/port-to-maven-plugin/` (or `openspec/specs/` once archived).
+`mvnex` is a Maven plugin, `com.sebas3261:ex-maven-plugin` (goal prefix `ex`), that adds an npm-like developer experience to Maven: `mvn ex:init`, `mvn ex:add`, plus `setup`/`uninstall` to register the `ex:` prefix in `settings.xml`. Core rule: **mvnex enhances Maven, it doesn't replace it**: `pom.xml` stays the source of truth and generated/edited projects stay plain Maven projects. It is a port of an earlier C++ CLI; the behavior spec lives in `openspec/specs/`, and the design and history of the port in `openspec/changes/archive/2026-09-21-port-to-maven-plugin/`.
 
 ## Build & test
 

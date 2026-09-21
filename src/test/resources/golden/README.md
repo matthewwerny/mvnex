@@ -2,7 +2,7 @@
 
 Expected outputs recorded from the C++ `mvnex` CLI, which serves as the
 behavioral oracle for the Maven plugin port (see
-`openspec/changes/port-to-maven-plugin/design.md`, D13). Every intentional
+`openspec/changes/archive/2026-09-21-port-to-maven-plugin/design.md`, D13). Every intentional
 difference between these files and the plugin's output must map to a row in the
 design's "Behavior deltas" table.
 
