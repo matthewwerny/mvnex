@@ -1,20 +1,12 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
-
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+context: |
+  Project: mvnex, a Maven plugin (com.sebas3261:ex-maven-plugin, goal prefix "ex") providing an
+  npm-like developer experience on top of Maven: ex:init, ex:add, ex:setup, ex:uninstall.
+  Principle: enhance Maven, don't replace it; pom.xml stays the source of truth.
+  Tech stack: Java 17, Maven 3.9.1+ plugin API (annotation-based mojos, JSR-330 injection),
+  Maven Resolver 1.9 (TransporterProvider for HTTP, version-range listings), Jackson, plexus
+  interactivity; JUnit 6, WireMock, maven-invoker-plugin integration tests.
+  Architecture: plugin -> infrastructure -> application -> domain (ports and adapters).
+  Conventions: Conventional Commits; edit pom.xml/settings.xml as text at comment-masked offsets,
+  never re-serialize; behavior changes versus the original C++ CLI are listed explicitly.
