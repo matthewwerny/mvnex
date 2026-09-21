@@ -8,32 +8,6 @@ permissions:
   contents: read
 
 jobs:
-  # The C++ CLI keeps building until it is removed (port-to-maven-plugin, section 12).
-  native:
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            binary: build/mvnex
-          - os: ubuntu-latest
-            binary: build/mvnex
-          - os: windows-latest
-            binary: build/Release/mvnex.exe
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Smoke test
-        run: ${{ matrix.binary }} --version
-
   plugin:
     strategy:
       fail-fast: false
