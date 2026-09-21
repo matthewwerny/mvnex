@@ -58,12 +58,12 @@
 
 ## 8. Mojos and interaction
 
-- [ ] 8.1 Implement `ConsoleInteraction` over plexus `InputHandler`/`OutputHandler` (text with default, numbered select accepting number or text, EOF → cancelled; `DefaultPrompter` can't detect EOF, see D5) and `LogReportSink`
-- [ ] 8.2 Implement `InitMojo` (`init`, requiresProject=false, aggregator, threadSafe): parameters `ex.name/groupId/package/java/wrapper`, early validation with Java-21 assumption, interactive collection order and defaults, wrapper-prompt rule, batch-mode defaults and `Missing project name` failure, summary and success output
-- [ ] 8.3 Implement `AddMojo` (`add`, requiresProject=false, aggregator, threadSafe): `ex.deps/version/scope`, usage error, single-dependency option checks, scope validation, expression grammar (port `DependencyArgumentsParser`), POM located before resolution, disambiguation loop (top 3 + `Search again...`), batch-mode ambiguity failure, result and validation output
-- [ ] 8.4 Implement `ParameterGuard` (design D17) and call it first in every mojo: a shared parameter-name registry, the `ex.internal.` allowance, a typo failure with Levenshtein ≤ 2 did-you-mean, and the other-goal warning; unit-test every scenario in the spec's unknown-parameter requirement
-- [ ] 8.5 Write plain-prose Javadoc descriptions on the annotated mojo classes and `@Parameter` fields (no legacy `@goal`/`@parameter` tags) so `mvn ex:help -Ddetail` shows descriptions and `mvn ex:<goal> -Dex.*` examples (replacing CLI help examples)
-- [ ] 8.6 Unit tests for mojo-level flows with a scripted `Interaction` (every interactive scenario in the init/add specs, including cancellation, the empty "Search again" answer reusing the previous term, and EOF at the selector)
+- [x] 8.1 Implement `ConsoleInteraction` over plexus `InputHandler`/`OutputHandler` (text with default, numbered select accepting number or text, EOF → cancelled; `DefaultPrompter` can't detect EOF, see D5) and `LogReportSink`
+- [x] 8.2 Implement `InitMojo` (`init`, requiresProject=false, aggregator, threadSafe): parameters `ex.name/groupId/package/java/wrapper`, early validation with Java-21 assumption, interactive collection order and defaults, wrapper-prompt rule, batch-mode defaults and `Missing project name` failure, summary and success output
+- [x] 8.3 Implement `AddMojo` (`add`, requiresProject=false, aggregator, threadSafe): `ex.deps/version/scope`, usage error, single-dependency option checks, scope validation, expression grammar (port `DependencyArgumentsParser`), POM located before resolution, disambiguation loop (top 3 + `Search again...`), batch-mode ambiguity failure, result and validation output
+- [x] 8.4 Implement `ParameterGuard` (design D17) and call it first in every mojo: a shared parameter-name registry, the `ex.internal.` allowance, a typo failure with Levenshtein ≤ 2 did-you-mean, and the other-goal warning; unit-test every scenario in the spec's unknown-parameter requirement
+- [x] 8.5 Write plain-prose Javadoc descriptions on the annotated mojo classes and `@Parameter` fields (no legacy `@goal`/`@parameter` tags) so `mvn ex:help -Ddetail` shows descriptions and `mvn ex:<goal> -Dex.*` examples (replacing CLI help examples)
+- [x] 8.6 Unit tests for mojo-level flows with a scripted `Interaction` (every interactive scenario in the init/add specs, including cancellation, the empty "Search again" answer reusing the previous term, and EOF at the selector)
 
 ## 9. Setup and uninstall goals
 
