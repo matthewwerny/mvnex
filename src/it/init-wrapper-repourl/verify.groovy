@@ -5,7 +5,7 @@ def fq = { goal -> "com.sebas3261:ex-maven-plugin:${pluginVersion}:${goal}".toSt
 
 def work = new File(basedir, 'work')
 work.mkdirs()
-mvn(work, localRepositoryPath, ['-B', '-o', fq('init'), '-Dex.name=app'], null, [MVNW_REPOURL: 'https://repo.example.org/maven2/']).assertSuccess()
+mvn(work, localRepositoryPath, ['-B', fq('init'), '-Dex.name=app'], null, [MVNW_REPOURL: 'https://repo.example.org/maven2/']).assertSuccess()
 assertPlatformText(goldenText('wrapper/maven-wrapper.properties.template')
         .replace('${repoUrl}', 'https://repo.example.org/maven2')
         .replace('${mavenVersion}', mavenVersion()), new File(work, 'app/.mvn/wrapper/maven-wrapper.properties'))

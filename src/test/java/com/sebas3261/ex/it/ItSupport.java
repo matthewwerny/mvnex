@@ -100,8 +100,34 @@ public final class ItSupport {
         command.add(new File(mavenHome, "bin/" + (windows ? "mvn.cmd" : "mvn")).getAbsolutePath());
         command.add("-ntp");
         command.add("-Dmaven.repo.local=" + localRepository.getAbsolutePath());
+        // Like the invoker's own builds, resolve anything missing (e.g. parent POMs of the plugin's
+        // dependencies) from the outer build's local repository; -gs leaves a test's own -s intact.
+        command.add("-gs");
+        command.add(outerRepositorySettings(dir).getAbsolutePath());
         command.addAll(args);
         return run(dir, command, stdin, env);
+    }
+
+    /** URL of the outer build's local repository (maven.repo.local, else ~/.m2/repository), without a trailing slash. */
+    public static String outerRepositoryUrl() {
+        String outer = System.getProperty("maven.repo.local",
+                System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+        String url = new File(outer).toURI().toString();
+        return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    private static File outerRepositorySettings(File dir) throws IOException {
+        String url = outerRepositoryUrl();
+        String repository = "<id>local.central</id><url>" + url + "</url>"
+                + "<releases><enabled>true</enabled></releases><snapshots><enabled>true</enabled></snapshots>";
+        File settings = File.createTempFile("it-global-settings", ".xml");
+        settings.deleteOnExit();
+        Files.writeString(settings.toPath(), "<settings><profiles><profile><id>it-repo</id>"
+                + "<activation><activeByDefault>true</activeByDefault></activation>"
+                + "<repositories><repository>" + repository + "</repository></repositories>"
+                + "<pluginRepositories><pluginRepository>" + repository + "</pluginRepository></pluginRepositories>"
+                + "</profile></profiles></settings>", StandardCharsets.UTF_8);
+        return settings;
     }
 
     public static Run run(File dir, List<String> command, String stdin, Map<String, String> env)

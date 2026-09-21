@@ -1,9 +1,0 @@
-<settings>
-  <mirrors>
-    <mirror>
-      <id>central</id>
-      <mirrorOf>*</mirrorOf>
-      <url>https://nexus.acme.corp/repository/maven-public</url>
-    </mirror>
-  </mirrors>
-</settings>

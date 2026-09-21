@@ -9,7 +9,7 @@ assertContains(log, 'Add a dependency to the project')
 assertContains(log, 'Register the ex plugin prefix in your Maven settings')
 
 // Detailed help documents each parameter with its ex.* user property.
-mvn(basedir, localRepositoryPath, ['-B', '-o', "com.sebas3261:ex-maven-plugin:${pluginVersion}:help".toString(),
+mvn(basedir, localRepositoryPath, ['-B', "com.sebas3261:ex-maven-plugin:${pluginVersion}:help".toString(),
         '-Ddetail', '-Dgoal=add'], null, [:])
         .assertSuccess().assertOutput('User property: ex.deps').assertOutput('User property: ex.scope')
         .assertOutput('mvn ex:add -Dex.deps=junit-jupiter -Dex.scope=test')
