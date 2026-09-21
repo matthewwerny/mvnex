@@ -127,11 +127,19 @@ When Maven runs in batch mode and resolution is ambiguous, the goal SHALL fail w
 - **THEN** the goal fails listing the candidates and the POM is unchanged
 
 ### Requirement: Duplicate detection
-A resolved dependency SHALL be skipped when the target POM already contains a `<dependency>` element (anywhere in the file, including `dependencyManagement` and plugin dependencies) whose first `<groupId>` and first `<artifactId>` child values, trimmed, equal the resolved `groupId` and `artifactId`, or when an earlier dependency in the same invocation has the same `groupId:artifactId`. Versions and scopes SHALL NOT affect duplicate detection.
+A resolved dependency SHALL be skipped when the POM's **project-level** `<dependencies>` element (the direct child of `<project>`) already contains a `<dependency>` whose first `<groupId>` and first `<artifactId>` child values, trimmed, equal the resolved `groupId` and `artifactId`, or when an earlier dependency in the same invocation has the same `groupId:artifactId`. Versions and scopes SHALL NOT affect duplicate detection. Entries under `<dependencyManagement>`, plugin `<dependencies>`, and profile `<dependencies>` SHALL NOT count, and text inside XML comments and CDATA SHALL be ignored. (Behavior delta: the C++ tool matched `<dependency>` elements anywhere in the file.)
 
 #### Scenario: Already declared
 - **WHEN** the POM declares `org.projectlombok:lombok:1.18.30` and the user adds `lombok`
 - **THEN** lombok is reported as skipped and the POM is not modified
+
+#### Scenario: Managed-only dependency is added for real
+- **WHEN** the POM manages `org.slf4j:slf4j-api` under `<dependencyManagement>` but does not declare it, and the user adds `org.slf4j:slf4j-api`
+- **THEN** it is added to the project-level `<dependencies>` rather than skipped
+
+#### Scenario: Commented-out dependency does not count
+- **WHEN** the project-level `<dependencies>` contains `<!-- <dependency><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId></dependency> -->` and the user adds `lombok`
+- **THEN** lombok is added
 
 #### Scenario: Duplicated in one invocation
 - **WHEN** the user runs `-Dex.deps=org.projectlombok:lombok,lombok` and both resolve to `org.projectlombok:lombok`
@@ -147,11 +155,29 @@ New dependencies SHALL be inserted as text, preserving every other byte of the P
             <scope>S</scope>
         </dependency>
 ```
-(the `<scope>` line only when a scope was requested), concatenated in order. Every inserted line, including the lines of a wrapping `<dependencies>` block, SHALL end with the POM's own line separator: CRLF if the file's first line break is CRLF, otherwise LF (LF also when the file has no line break). The block SHALL be inserted immediately before the last occurrence of the exact text `    </dependencies>` (four spaces). If that text is absent, the block SHALL be wrapped as `    <dependencies>` + EOL + block + `    </dependencies>` + EOL + EOL (EOL = the POM's line separator) and inserted immediately before the last `</project>`. If `</project>` is absent the goal SHALL fail with `Invalid pom.xml: missing </project>.` If nothing is to be added the POM SHALL NOT be written. The POM SHALL be read and written byte-transparently (decoded and encoded as ISO-8859-1, so every byte round-trips unchanged whatever the file's actual encoding, BOM included); all searched markers and inserted text are ASCII.
+(the `<scope>` line only when a scope was requested), concatenated in order. Every inserted line, including the lines of a wrapping `<dependencies>` block, SHALL end with the POM's own line separator: CRLF if the file's first line break is CRLF, otherwise LF (LF also when the file has no line break). The target is the **project-level** `<dependencies>` element (the direct child of `<project>`), located on the POM text with XML comments and CDATA masked out; `<dependencies>` elements under `<dependencyManagement>`, plugins, or profiles SHALL never be targeted. Then, in the first matching case:
+1. **Closing tag at the start of its line** (only whitespace before `</dependencies>` on that line): insert the block at the start of that line.
+2. **Closing tag elsewhere on a line** (e.g. `<dependencies></dependencies>`): insert EOL + block immediately before `</dependencies>`.
+3. **Self-closing `<dependencies/>`**: replace it with `<dependencies>` + EOL + block + `    </dependencies>`.
+4. **No project-level `<dependencies>`**: wrap the block as `    <dependencies>` + EOL + block + `    </dependencies>` + EOL + EOL (EOL = the POM's line separator) and insert it immediately before the last `</project>`.
+
+For the common layout (4-space project-level `<dependencies>`), case 1 produces exactly the C++ tool's output. (Behavior delta: the C++ tool inserted before the last occurrence of the text `    </dependencies>` anywhere, which placed entries inside `<dependencyManagement>` when that was the only `<dependencies>` element.) If `</project>` is absent the goal SHALL fail with `Invalid pom.xml: missing </project>.` If nothing is to be added the POM SHALL NOT be written. The POM SHALL be read and written byte-transparently (decoded and encoded as ISO-8859-1, so every byte round-trips unchanged whatever the file's actual encoding, BOM included); all searched markers and inserted text are ASCII.
 
 #### Scenario: Existing dependencies section
 - **WHEN** the POM has a project-level `    <dependencies>` block
 - **THEN** the new entries appear just before its closing tag and the rest of the file is byte-identical
+
+#### Scenario: Only dependencyManagement present
+- **WHEN** the POM has `<dependencyManagement><dependencies>…</dependencies></dependencyManagement>` and no project-level `<dependencies>`, and the user adds `lombok`
+- **THEN** a new project-level `<dependencies>` block is inserted before `</project>` and `<dependencyManagement>` is byte-identical
+
+#### Scenario: Project-level dependencies after dependencyManagement
+- **WHEN** the POM has both `<dependencyManagement>` and, later, a project-level `<dependencies>`
+- **THEN** the entries are inserted into the project-level `<dependencies>` only
+
+#### Scenario: Self-closing dependencies element
+- **WHEN** the POM contains `    <dependencies/>` at project level
+- **THEN** it is replaced by an open `<dependencies>` element containing the new entries and a closing `    </dependencies>`
 
 #### Scenario: No dependencies section
 - **WHEN** a freshly generated `ex:init` POM receives `lombok`

@@ -88,7 +88,7 @@ After the race, each candidate's version SHALL be the requested version when one
 ### Requirement: Canonical version selection
 When no version was requested, the version of every candidate (search terms) or of the resolved coordinate SHALL be chosen by one deterministic procedure, independent of which provider won the race:
 1. List all versions of `groupId:artifactId` via the repository (see "Repository lookups go through the user's mirrors"), ordered by Maven's own version ordering.
-2. Walk the non-pre-release versions (see "Pre-release detection") from highest to lowest and choose the first one that the public search index confirms exists on Maven Central (gav query `g:"<g>" AND a:"<a>" AND v:"<v>"`, `numFound > 0`, sent to the provider that won the race, or to Sonatype Central search when deps.dev won). Versions served only by the mirror (internal or vendor builds) are thereby skipped. If no confirmation can be obtained because the search endpoint fails, choose the highest non-pre-release version from the listing.
+2. Walk the non-pre-release versions (see "Pre-release detection") from highest to lowest and choose the first one that the public search index confirms exists on Maven Central: a gav query `g:"<g>" AND a:"<a>" AND v:"<v>"` (core `gav`, 1 row, `numFound > 0`) sent to **`https://search.maven.org/solrsearch/select`**, regardless of which provider won the race. Sonatype Central's endpoint is not used for this because it returns `numFound: 0` for every quoted gav query, even for existing versions (observed 2026-09-21). Versions served only by the mirror (internal or vendor builds) are thereby skipped. If the confirmation request fails (transport error or non-2xx), or if no version is confirmed, choose the highest non-pre-release version from the listing.
 3. If no non-pre-release version exists, apply step 2 to all versions (pre-releases included).
 4. Only if the listing fails or is empty, use the winning provider's provisional version (for deps.dev: see "Coordinate resolution").
 
@@ -121,6 +121,14 @@ Canonical selection for multiple candidates SHALL run concurrently with at most 
 #### Scenario: Search index unreachable during confirmation
 - **WHEN** the gav confirmation request fails with a transport error
 - **THEN** the highest non-pre-release version from the mirror listing is chosen
+
+#### Scenario: Confirmation independent of the race winner
+- **WHEN** Sonatype Central wins the race for `lombok`
+- **THEN** canonical-version confirmation queries still go to `search.maven.org` and `1.18.48` is confirmed
+
+#### Scenario: No version confirmed
+- **WHEN** `search.maven.org` answers `numFound: 0` for every listed version (for example, a release published minutes ago that isn't indexed yet, with no older version listed)
+- **THEN** the highest non-pre-release version from the listing is chosen
 
 #### Scenario: Only pre-releases exist
 - **WHEN** an artifact has only `1.0.0-M1` and `1.0.0-M2`

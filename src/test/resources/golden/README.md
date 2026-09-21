@@ -82,7 +82,7 @@ in order, `mvnex add org.projectlombok:lombok:1.18.32` and
 | `fresh` | recorded | `init` POM without `<dependencies>`; a block is wrapped before `</project>` |
 | `existing-deps` | recorded | project-level 4-space `<dependencies>`; entries inserted before its closing tag |
 | `already-present` | recorded | lombok already declared (1.18.30) → skipped; junit added |
-| `dependency-management-only` | recorded | **C++ quirk**: the inner `        </dependencies>` contains the 4-space marker, so both entries land inside `<dependencyManagement>` with broken indentation (managed, not real dependencies) |
+| `dependency-management-only` | spec-derived | only `<dependencyManagement>` exists → a new project-level block is wrapped before `</project>`. `cpp-recorded.pom.xml` keeps the C++ output for reference: the inner `        </dependencies>` contained the 4-space marker, so the C++ tool inserted both entries inside `<dependencyManagement>` (managed, not real dependencies). Fixed by design (behavior delta) |
 | `crlf` | spec-derived | `fresh` with CRLF endings; inserted lines use CRLF (behavior delta) |
 | `iso-8859-1` | spec-derived | `existing-deps` plus `<name>Café</name>` as byte `0xE9`; bytes round-trip (behavior delta) |
 | `utf8-bom` | spec-derived | `fresh` with a UTF-8 BOM; BOM preserved |
