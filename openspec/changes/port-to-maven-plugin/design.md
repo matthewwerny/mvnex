@@ -80,7 +80,18 @@ Every request goes through the `TransporterProvider` that Maven itself uses (Res
 
 This gives Basic auth through HTTPS tunnels, `settings.xml` credentials, Maven's TLS configuration, and mirror routing with **no new dependency**, behaving exactly like Maven's own downloads.
 
-*Spike first (task 5.1):* confirm (1) query strings survive `GetTask` resolution against the base URI, (2) 404 classification, (3) per-session timeout overrides, (4) JSON bodies arrive unmodified, and (5) the User-Agent override. If (1) fails, fall back to an Apache HttpClient 5.6.4 adapter behind the same port for the three search endpoints only.
+**Spike results (task 5.1, 2026-09-21, Maven 3.9.16 / Resolver 1.9.27, native HTTP transport).** A throwaway mojo injecting `TransporterProvider` was run against WireMock and the live endpoints:
+1. **Query strings survive** `GetTask` resolution: an exact-URL stub for `/solrsearch/select?q=a%3Alombok&rows=25&wt=json` matched, percent-encoding intact. deps.dev's encoded colon (`org.projectlombok%3Alombok`) also works live.
+2. **404 is classified** `Transporter.ERROR_NOT_FOUND` (WireMock and live repo1).
+3. **Per-call timeouts work:** a session copy with `aether.connector.requestTimeout=1000` failed a 3 s response after 1107 ms (`SocketTimeoutException`); without the override it succeeded after 3118 ms.
+4. **Bodies are unmodified:** the SHA-256 of the WireMock body and of the live Sonatype response both equal the recorded fixture.
+5. **The User-Agent override is honored:** the request journal shows `ex-maven-plugin/0.2.0-SNAPSHOT` instead of Maven's `Apache-Maven/3.9.16 (...)`.
+
+Two findings beyond the planned checks:
+- **Maven's transport retries 503/429 with backoff**: a 503 took 30.1 s. The C++ tool never retried. The per-call session copy therefore sets `aether.connector.http.retryHandler.count=0` and `aether.connector.http.retryHandler.serviceUnavailable=""`, after which a 503 fails in 95 ms.
+- **HTTP status versus transport failure:** errors are Maven-internal types (`org.apache.http.client.HttpResponseException` for statuses, `HttpHostConnectException` etc. for transport) that plugins cannot import. The adapter reads the status reflectively via a `getStatusCode()` method anywhere in the cause chain (present on Apache's exception and on Resolver 2.x's `HttpTransporterException`): a status means an HTTP error response (404 → not found via `classify`), no status means a transport failure ("unavailable").
+
+No fallback is needed; the Apache HttpClient 5 option is dropped.
 
 *Alternatives:*
 - `java.net.http.HttpClient`: Basic tunneling auth is disabled by default JDK-wide, SOCKS is ignored silently, and settings proxies and mirrors would have to be re-implemented.
