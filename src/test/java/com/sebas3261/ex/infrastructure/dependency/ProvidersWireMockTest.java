@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -151,7 +152,6 @@ class ProvidersWireMockTest {
                 + "&rows=1&wt=json&core=gav", 200, fixture("search-maven-gav-hit.json"));
 
         assertDoesNotThrow(() -> solr().verifyVersion("org.projectlombok", "lombok", "1.18.32"));
-        assertTrue(solr().contains("org.projectlombok", "lombok", "1.18.32"));
     }
 
     @Test
@@ -196,6 +196,22 @@ class ProvidersWireMockTest {
         stub("/v3/systems/MAVEN/packages/org.projectlombok%3Alombok", 200, fixture("depsdev-no-default.json"));
 
         assertEquals("1.18.32", depsDev().coordinate("org.projectlombok", "lombok").provisionalVersion());
+    }
+
+    @Test
+    void depsDevListsEveryCentralVersion() throws IOException {
+        stub("/v3/systems/MAVEN/packages/org.projectlombok%3Alombok", 200, fixture("depsdev-lombok.json"));
+
+        Set<String> versions = depsDev().versions("org.projectlombok", "lombok");
+
+        assertEquals(60, versions.size());
+        assertTrue(versions.containsAll(Set.of("0.10.0", "1.18.38", "1.18.48")));
+    }
+
+    @Test
+    void depsDevUnknownArtifactHasNoVersions() throws IOException {
+        stub("/v3/systems/MAVEN/packages/com.example.mvnex%3Adoesnotexist12345", 404, fixture("depsdev-miss.json"));
+        assertTrue(depsDev().versions("com.example.mvnex", "doesnotexist12345").isEmpty());
     }
 
     @Test

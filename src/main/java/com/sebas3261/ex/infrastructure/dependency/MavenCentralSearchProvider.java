@@ -10,11 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Solr-based search (Sonatype Central or search.maven.org). Also serves as the
- * {@link CentralIndex} when pointed at search.maven.org, the only endpoint that answers gav queries.
- */
-public final class MavenCentralSearchProvider implements SearchProvider, CentralIndex {
+/** Solr-based search (Sonatype Central or search.maven.org). */
+public final class MavenCentralSearchProvider implements SearchProvider {
 
     public static final String SONATYPE_CENTRAL_SEARCH = "https://central.sonatype.com/solrsearch/select";
     public static final String MAVEN_CENTRAL_SEARCH = "https://search.maven.org/solrsearch/select";
@@ -61,7 +58,7 @@ public final class MavenCentralSearchProvider implements SearchProvider, Central
 
     @Override
     public void verifyVersion(String groupId, String artifactId, String version) {
-        if (contains(groupId, artifactId, version)) {
+        if (indexContains(groupId, artifactId, version)) {
             return;
         }
         if (!repository.pomExists(groupId, artifactId, version)) {
@@ -69,8 +66,7 @@ public final class MavenCentralSearchProvider implements SearchProvider, Central
         }
     }
 
-    @Override
-    public boolean contains(String groupId, String artifactId, String version) {
+    boolean indexContains(String groupId, String artifactId, String version) {
         String query = "g:\"" + groupId + "\" AND a:\"" + artifactId + "\" AND v:\"" + version + "\"";
         JsonNode response = query(query, 1, "gav");
         return response.path("response").path("numFound").asLong(0) > 0;

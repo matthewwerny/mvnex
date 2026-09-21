@@ -13,6 +13,7 @@ import com.sebas3261.ex.domain.dependency.ResolvedDependency;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -94,7 +95,7 @@ class CompositeDependencyResolverTest {
                 return true;
             }
         };
-        return new CanonicalVersionSelector(unavailable, (g, a, v) -> true);
+        return new CanonicalVersionSelector(unavailable, (g, a) -> Set.of());
     }
 
     /** Canonical selection backed by a fixed listing, so every provider ends up with the same answer. */
@@ -110,7 +111,7 @@ class CompositeDependencyResolverTest {
                 return true;
             }
         };
-        return new CanonicalVersionSelector(listing, (g, a, v) -> true);
+        return new CanonicalVersionSelector(listing, (g, a) -> Set.of(versions));
     }
 
     private static final Candidate LOMBOK = new Candidate("org.projectlombok", "lombok", "1.18.48");
@@ -269,7 +270,7 @@ class CompositeDependencyResolverTest {
 
         MultipleDependencyMatchesException error = assertThrows(MultipleDependencyMatchesException.class,
                 () -> new CompositeDependencyResolver(List.of(provider),
-                        new CanonicalVersionSelector(slowListing, (g, a, v) -> true)).resolveBySearchTerm("lombok", ""));
+                        new CanonicalVersionSelector(slowListing, (g, a) -> Set.of("1.0"))).resolveBySearchTerm("lombok", ""));
 
         assertEquals(13, error.candidates().size());
         assertTrue(maxInFlight[0] > 1 && maxInFlight[0] <= CompositeDependencyResolver.CANONICAL_LOOKUPS_IN_FLIGHT,

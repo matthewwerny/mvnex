@@ -8,10 +8,15 @@ import com.sebas3261.ex.application.ports.HttpClient;
 import com.sebas3261.ex.infrastructure.transport.LookupUrls;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-/** deps.dev package API: a coordinate fallback that never answers search terms. */
-public final class DepsDevProvider implements SearchProvider {
+/**
+ * deps.dev package API: a coordinate fallback that never answers search terms, and the source of
+ * Maven Central version lists for canonical version selection.
+ */
+public final class DepsDevProvider implements SearchProvider, CentralVersions {
 
     public static final String BASE_URL = "https://api.deps.dev/v3/systems/MAVEN/packages/";
 
@@ -55,6 +60,15 @@ public final class DepsDevProvider implements SearchProvider {
         if (versions.stream().noneMatch(candidate -> candidate.version().equals(version))) {
             throw new DependencyNotFoundException(groupId + ":" + artifactId + ":" + version);
         }
+    }
+
+    @Override
+    public Set<String> versions(String groupId, String artifactId) {
+        Set<String> versions = new HashSet<>();
+        for (PackageVersion version : fetch(groupId, artifactId)) {
+            versions.add(version.version());
+        }
+        return versions;
     }
 
     private List<PackageVersion> fetch(String groupId, String artifactId) {

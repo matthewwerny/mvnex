@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.sebas3261.ex.application.errors.DependencyResolutionException;
 import com.sebas3261.ex.application.errors.DependencyResolverUnavailableException;
 import com.sebas3261.ex.application.errors.LookupNotPossibleException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -33,11 +32,11 @@ class CanonicalVersionSelectorTest {
         }
     }
 
-    /** Confirms only the given versions; records queries. */
-    private static final class Index implements CentralIndex {
+    /** Central's version list for the artifact; records how often it was asked. */
+    private static final class Index implements CentralVersions {
         final Set<String> onCentral;
         final RuntimeException failure;
-        final List<String> queried = new ArrayList<>();
+        int calls;
 
         Index(RuntimeException failure, String... onCentral) {
             this.onCentral = Set.of(onCentral);
@@ -45,16 +44,16 @@ class CanonicalVersionSelectorTest {
         }
 
         @Override
-        public boolean contains(String groupId, String artifactId, String version) {
-            queried.add(version);
+        public Set<String> versions(String groupId, String artifactId) {
+            calls++;
             if (failure != null) {
                 throw failure;
             }
-            return onCentral.contains(version);
+            return onCentral;
         }
     }
 
-    private static String select(RepositoryLookup listing, CentralIndex index, String provisional) {
+    private static String select(RepositoryLookup listing, CentralVersions index, String provisional) {
         return new CanonicalVersionSelector(listing, index).select("g", "a", provisional);
     }
 
@@ -81,7 +80,7 @@ class CanonicalVersionSelectorTest {
         Index index = new Index(null, "1.18.46", "1.18.48");
         assertEquals("1.18.48", select(Listing.of("1.18.46", "1.18.48", "1.18.48-acme.2", "1.18.48-redhat-00001"),
                 index, "1.18.48"));
-        assertEquals(List.of("1.18.48-redhat-00001", "1.18.48-acme.2", "1.18.48"), index.queried);
+        assertEquals(1, index.calls, "one Central version list per artifact, not a query per version");
     }
 
     @Test
