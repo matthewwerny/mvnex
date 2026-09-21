@@ -18,10 +18,10 @@
 
 ## 3. Domain layer
 
-- [ ] 3.1 Port `ProjectConfig` (record) and `ProjectNaming.toPackageName` (strip all `-`)
-- [ ] 3.2 Port `ProjectValidator`: name regex, segment rules, exact reserved-word set, `_` Java-8 exception, error-message precedence; package validation with "package name" messages (delta)
-- [ ] 3.3 Unit tests: every reserved word, `_` × {8, 21}, name/groupId/package/version tables from `specs/project-init`
-- [ ] 3.4 Port `DependencyRequest` (sealed: SearchTerm, SearchTermWithVersion, Coordinate, CoordinateWithVersion, each with scope) and `ResolvedDependency` (record with optional scope)
+- [x] 3.1 Port `ProjectConfig` (record) and `ProjectNaming.toPackageName` (strip all `-`)
+- [x] 3.2 Port `ProjectValidator`: name regex, segment rules, exact reserved-word set, `_` Java-8 exception, error-message precedence; package validation with "package name" messages (delta)
+- [x] 3.3 Unit tests: every reserved word, `_` × {8, 21}, name/groupId/package/version tables from `specs/project-init`
+- [x] 3.4 Port `DependencyRequest` (sealed: SearchTerm, SearchTermWithVersion, Coordinate, CoordinateWithVersion, each with scope) and `ResolvedDependency` (record with optional scope)
 
 ## 4. Application layer
 
