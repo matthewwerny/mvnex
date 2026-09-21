@@ -12,4 +12,9 @@ def settings = new File(home, '.m2/settings.xml')
 assert settings.getText('UTF-8').contains('<pluginGroup>com.sebas3261</pluginGroup>')
 // The short prefix now resolves.
 mvn(basedir, localRepositoryPath, ['-o', 'ex:help'], null, env).assertSuccess().assertOutput('This plugin has 5 goals')
+// With the plugin group configured, init no longer suggests setup.
+def work = new File(basedir, 'work')
+work.mkdirs()
+def run = mvn(work, localRepositoryPath, ['-B', '-o', 'ex:init', '-Dex.name=app', '-Dex.wrapper=false'], null, env).assertSuccess()
+assert !run.output().contains('Tip: run mvn')
 return true

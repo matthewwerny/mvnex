@@ -76,10 +76,9 @@ public final class WireMockSupport {
                 "{\"response\":{\"numFound\":1,\"docs\":[{\"g\":\"org.junit.jupiter\",\"a\":\"junit-jupiter\","
                         + "\"v\":\"5.10.0\"}]}}");
 
-        stub(server, LookupUrls.depsDevPackage(depsDev, "org.projectlombok", "lombok").toString().substring(base.length()),
-                fixture("depsdev-lombok.json"));
-        stub(server, LookupUrls.depsDevPackage(depsDev, "org.junit.jupiter", "junit-jupiter").toString()
-                .substring(base.length()), fixture("depsdev-junit-jupiter.json"));
+        stubDepsDev(server, "org.projectlombok", "lombok", fixture("depsdev-lombok.json"));
+        stubDepsDev(server, "org.junit.jupiter", "junit-jupiter", fixture("depsdev-junit-jupiter.json"));
+        stubDepsDev(server, "org.postgresql", "postgresql", fixture("depsdev-postgresql.json"));
 
         stub(server, "/maven2/org/projectlombok/lombok/maven-metadata.xml", fixture("metadata-lombok.xml"));
         stub(server, "/maven2/org/junit/jupiter/junit-jupiter/maven-metadata.xml", fixture("metadata-junit-jupiter.xml"));
@@ -144,6 +143,17 @@ public final class WireMockSupport {
         String url = LookupUrls.solrSearch(searchUrl, query, rows, core).toString();
         String path = url.substring(url.indexOf('/', "http://".length()));
         stub(server, path, body);
+    }
+
+    /**
+     * deps.dev package URLs are requested as {@code g%3Aa}, but Maven's transport normalizes the path
+     * and sends {@code g:a}; the stub accepts both so a lookup never silently falls through to 404.
+     */
+    private static void stubDepsDev(WireMockServer server, String groupId, String artifactId, String body) {
+        String path = "/depsdev/v3/systems/MAVEN/packages/" + java.util.regex.Pattern.quote(groupId) + "(%3A|:)"
+                + java.util.regex.Pattern.quote(artifactId);
+        server.stubFor(get(com.github.tomakehurst.wiremock.client.WireMock.urlMatching(path)).atPriority(1)
+                .willReturn(aResponse().withStatus(200).withBody(body)));
     }
 
     private static void stub(WireMockServer server, String path, String body) {

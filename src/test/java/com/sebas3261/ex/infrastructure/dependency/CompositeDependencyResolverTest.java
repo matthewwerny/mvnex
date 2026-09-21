@@ -178,6 +178,20 @@ class CompositeDependencyResolverTest {
     }
 
     @Test
+    void searchTermAndCoordinateGetTheSameVersion() {
+        CanonicalVersionSelector canonical = canonicalListing("1.18.30", "1.18.48", "1.18.50-rc1");
+        Fake solr = new Fake("solr", 0, candidates(new Candidate("org.projectlombok", "lombok", "1.18.38")),
+                () -> new Candidate("org.projectlombok", "lombok", "1.18.38"), OK);
+
+        String byTerm = new CompositeDependencyResolver(List.of(solr), canonical).resolveBySearchTerm("lombok", "").version();
+        String byCoordinate = new CompositeDependencyResolver(List.of(solr), canonical)
+                .resolveByCoordinate("org.projectlombok", "lombok", "").version();
+
+        assertEquals("1.18.48", byTerm);
+        assertEquals(byTerm, byCoordinate);
+    }
+
+    @Test
     void coordinateWithVersionRacesTheExistenceCheck() {
         Fake missing = new Fake("a", 0, null, null,
                 failing(new DependencyNotFoundException("org.projectlombok:lombok:1.18.32"))::get);
