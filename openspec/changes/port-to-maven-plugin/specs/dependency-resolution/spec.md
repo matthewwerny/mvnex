@@ -62,11 +62,15 @@ When a lookup fails because the server certificate is not trusted by the JVM (a 
 - **THEN** the goal fails with the unavailable message followed by the certificate hint
 
 ### Requirement: Concurrent first-result resolution
-For each request, all providers SHALL be queried concurrently. The first provider to complete with a decisive outcome — one or more candidates for a search term, or confirmation that a coordinate exists — SHALL determine the candidate set, and other providers' results SHALL be ignored. Only if every provider fails SHALL resolution fail, with this precedence: if any provider reported "not found", fail with that provider's not-found message; else if any reported "unavailable", fail with that message; else fail with the last other error message; else `Dependency resolver failed.` Versions are then chosen by "Canonical version selection", independent of which provider won.
+For each request, all providers SHALL be queried concurrently. The first provider to complete with a decisive outcome — one or more candidates for a search term, or confirmation that a coordinate exists — SHALL determine the candidate set, and other providers' results SHALL be ignored. Only if every provider fails SHALL resolution fail, with this precedence: if any provider reported "not found", fail with that provider's not-found message; else if any reported "unavailable", fail with that message; else fail with the last other error message; else `Dependency resolver failed.` A failure that no provider could avoid (offline mode, or a rejected SOCKS proxy) SHALL abort resolution immediately with its own message, even if another provider reported "not found" (deps.dev answers search terms with "not found" without any network request, which would otherwise mask the real cause). Versions are then chosen by "Canonical version selection", independent of which provider won.
 
 #### Scenario: Fast provider decides the candidate set
 - **WHEN** Maven Central search returns two `lombok` candidates first and Sonatype Central would later return three
 - **THEN** the two candidates from Maven Central are used
+
+#### Scenario: SOCKS failure is not masked by deps.dev
+- **WHEN** `ALL_PROXY=socks5://127.0.0.1:1080` is set and the user adds `lombok`
+- **THEN** the goal fails with the SOCKS message, not `Dependency not found: lombok`
 
 #### Scenario: All providers fail
 - **WHEN** Sonatype Central and Maven Central report not found and deps.dev is unreachable
