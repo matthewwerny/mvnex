@@ -134,7 +134,7 @@ mvn ex:init -Dex.name=my-app -Dex.wrapper=false
 | `ex.java` | `maven.compiler.release`: 8, 11, 17, 21, or 25 | prompted (21) |
 | `ex.wrapper` | `false` skips the Maven Wrapper | asked when not everything was given |
 
-In batch mode (`mvn -B`) nothing is prompted: `ex.name` is required and everything else uses its default.
+In batch mode (`mvn -B`) nothing is prompted: `ex.name` is required and everything else uses its default. Maven 3.9 also switches to batch mode by itself when the `CI` environment variable is `true`, as on GitHub Actions.
 
 The generated project contains `pom.xml`, `src/main/java/<package>/Main.java`, an empty `src/test/java/<package>/`, and, unless disabled, the Maven Wrapper (`mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`). The wrapper pins the Maven version you ran `ex:init` with and downloads it from `MVNW_REPOURL`, else from your `mirrorOf="*"` mirror, else from Maven Central, like `maven-wrapper-plugin` does. Generating it needs no network access.
 

@@ -133,7 +133,15 @@ public final class ItSupport {
     public static Run run(File dir, List<String> command, String stdin, Map<String, String> env)
             throws IOException, InterruptedException {
         ProcessBuilder builder = new ProcessBuilder(command).directory(dir).redirectErrorStream(true);
-        builder.environment().putAll(env);
+        // A null value removes the variable (e.g. CI, which makes Maven 3.9 run in batch mode).
+        Map<String, String> processEnvironment = builder.environment();
+        env.forEach((name, value) -> {
+            if (value == null) {
+                processEnvironment.remove(name);
+            } else {
+                processEnvironment.put(name, value);
+            }
+        });
         Process process = builder.start();
         try (OutputStream in = process.getOutputStream()) {
             if (stdin != null) {
