@@ -184,7 +184,7 @@ The build enforces this by limiting `maven-plugin-plugin`'s `descriptor` goal to
 | Selector UX | Arrow keys, editable preloaded search | Numbered choice; previous query as default | Prompter capabilities |
 | Missing-Maven warning on `--no-wrapper` | Printed when `mvn` not on PATH | Removed | Maven is by definition running |
 | Wrapper generation | `mvn wrapper:wrapper` if Maven installed (running Maven version, `MVNW_REPOURL`/`*` mirror URL), else embedded files pinned to 3.9.11, with spinner | Always the "Maven installed" output, produced in-process from bundled official scripts; no spinner | Parity with the usual C++ path without network or external `mvn` |
-| `mvnw.cmd` line endings | LF on Unix, CRLF on Windows | Always CRLF (official bytes) | Correctness on Windows |
+| `mvnw.cmd` line endings | Usual path (`mvn` installed): official CRLF bytes, confirmed by the recorded fixtures; fallback path (embedded strings): LF on Unix, CRLF on Windows | Always CRLF (official bytes) | Correctness on Windows |
 | `mvnw` line endings | CRLF on Windows (text-mode streams), breaking it in Git Bash/WSL | Always LF (official bytes) | Correctness |
 | Package error text | Said "group ID" for invalid `--package` | Says "package name" | Misleading message |
 | Validate after add | `./mvnw`/`mvn validate` subprocess; "Maven not found" warning | In-process ProjectBuilder; no "not found" state | No external Maven needed |
