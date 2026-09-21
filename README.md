@@ -80,7 +80,7 @@ mvn install
 
 ### Enable the `ex:` prefix
 
-Maven only resolves short plugin prefixes for groups listed in your settings. Run this once, with the full plugin name:
+Maven only resolves short plugin prefixes for groups listed in your settings. Run this once, with the full plugin name (`<version>` is the release version, or the `<version>` in `pom.xml` when you built from source, e.g. `0.2.0-SNAPSHOT`):
 
 ```bash
 mvn com.sebas3261:ex-maven-plugin:<version>:setup

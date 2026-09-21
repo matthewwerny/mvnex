@@ -100,8 +100,8 @@ Every scenario in `specs/` mapped to the test that verifies it. "unit" tests run
 | Unknown parameter detection | Shared configuration tolerated | IT `add-shared-config` |
 | Unknown parameter detection | Test overrides accepted | unit `ParsingAndGuardTest#internalAndForeignKeysAreIgnored`; every WireMock-backed IT |
 | Automated verification | CI run | GitHub Actions run 35609718787: plugin job green on Linux/macOS/Windows × Java 17/21 (Windows 36/36 ITs incl. `init-windows-eol`), `maven-floor` green on Maven 3.9.1 |
-| Continuous integration and release | Tag release | pending: task 11.4 (release build simulated locally) |
-| Native CLI removed | Repository state after the change | pending: task 12.2 |
+| Continuous integration and release | Tag release | release `v0.2.0` published by run 35612915506 (prerelease with jar, POM, sources, javadoc); both install paths verified from the published assets |
+| Native CLI removed | Repository state after the change | C++ sources, CMake build and native CI job deleted (task 12.2) |
 
 ## plugin-setup (35 scenarios)
 
