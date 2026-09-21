@@ -30,10 +30,18 @@ public final class ResolverRepositoryLookup implements RepositoryLookup {
     private final RepositorySystem system;
     private final RepositorySystemSession session;
     private final ProxyChooser proxies;
+    private final String centralUrl;
 
     public ResolverRepositoryLookup(RepositorySystem system, RepositorySystemSession baseSession, ProxyChooser proxies) {
+        this(system, baseSession, proxies, CENTRAL_URL);
+    }
+
+    /** @param centralUrl URL of the {@code central} repository; only integration tests change it */
+    public ResolverRepositoryLookup(RepositorySystem system, RepositorySystemSession baseSession, ProxyChooser proxies,
+            String centralUrl) {
         this.system = system;
         this.proxies = proxies;
+        this.centralUrl = centralUrl;
         DefaultRepositorySystemSession fresh = new DefaultRepositorySystemSession(baseSession);
         // Never answer from a stale cached maven-metadata.xml.
         fresh.setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
@@ -82,7 +90,7 @@ public final class ResolverRepositoryLookup implements RepositoryLookup {
     }
 
     private List<RemoteRepository> repositories() {
-        RemoteRepository central = new RemoteRepository.Builder("central", "default", CENTRAL_URL).build();
+        RemoteRepository central = new RemoteRepository.Builder("central", "default", centralUrl).build();
         List<RemoteRepository> resolved = new ArrayList<>();
         for (RemoteRepository repository : system.newResolutionRepositories(session, List.of(central))) {
             if (repository.getProxy() != null) {

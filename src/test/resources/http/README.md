@@ -29,3 +29,4 @@ Observations at recording time:
 - `central.sonatype.com` ignores `core` and returns `numFound: 0` for quoted `g:"…" AND a:"…"` queries, including `sonatype-gav-hit.json` for an existing version. Only `search.maven.org` answers gav queries.
 - `metadata-spring-core.xml`: `<latest>` is the milestone `7.1.0-M1`.
 - `depsdev-lombok.json`: versions are listed oldest first; `isDefault` is `1.18.48`.
+- `metadata-lombok.xml`, `metadata-junit-jupiter.xml`, `depsdev-junit-jupiter.json`, `repo1-junit-jupiter-5.10.0.pom`: recorded 2026-09-21 for the `add` integration tests.

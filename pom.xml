@@ -254,6 +254,9 @@
                     <postBuildHookScript>verify</postBuildHookScript>
                     <!-- Lets hook scripts use test helpers such as the WireMock support class -->
                     <addTestClassPath>true</addTestClassPath>
+                    <scriptVariables>
+                        <pluginVersion>${project.version}</pluginVersion>
+                    </scriptVariables>
                     <showErrors>true</showErrors>
                     <goals>
                         <goal>${project.groupId}:${project.artifactId}:${project.version}:help</goal>

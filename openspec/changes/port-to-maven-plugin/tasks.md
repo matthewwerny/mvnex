@@ -80,20 +80,20 @@
 
 ## 10. Integration tests (`src/it`)
 
-- [ ] 10.1 `init-wrapper`: batch init with defaults; assert files vs goldens, `mvnw` executable, `./mvnw -v` on Unix
-- [ ] 10.2 `init-no-wrapper`, `init-existing-dir`, `init-invalid-name`, `init-batch-missing-name`
-- [ ] 10.3 `init-in-reactor`: run from a 3-module project root; assert a single project directory
-- [ ] 10.4 `add-basic` and `add-scope` against WireMock; assert POM vs goldens and `Maven validate passed`
-- [ ] 10.5 `add-nested-dir`, `add-duplicate`, `add-ambiguous-batch`, `add-offline`, `add-no-pom`
-- [ ] 10.6 `interactive-init`: feed stdin to verify Prompter wiring end-to-end
-- [ ] 10.7 `setup-new-file` and `setup-existing-file`: run setup with `-s <it dir>/settings.xml`, assert the goldens, then run `mvn -s <file> ex:help` to prove the prefix resolves; `setup-idempotent` runs setup twice
-- [ ] 10.8 `uninstall-roundtrip`: setup then uninstall on a copied Maven default `settings.xml` with `-s`; assert the result is byte-identical to the original, the fully qualified `help` still works, and `mvn -s <file> ex:help` fails with the no-plugin-for-prefix error; `uninstall-missing-file` asserts no file or directory is created
-- [ ] 10.9 `init-wrapper-mirror` and `init-wrapper-repourl`: assert `distributionUrl` uses the `mirrorOf="*"` mirror, respectively `MVNW_REPOURL`, and the running Maven version; `init-wrapper-mirror-central-only` asserts a `mirrorOf=central` mirror is ignored
-- [ ] 10.10 `add-via-mirror`: IT settings with a `mirrorOf="*"` mirror pointing at WireMock; assert version listings and POM checks hit the mirror and search requests hit the search stubs
-- [ ] 10.11 `add-env-proxy` (a lightweight forwarding proxy with Basic auth in the IT harness; assert the requests traverse it) and `add-socks-rejected` (assert the SOCKS error and that no direct request reaches WireMock)
-- [ ] 10.12 `add-unknown-param` (typo fails with did-you-mean) and `add-shared-config` (a `.mvn/maven.config` with `ex.groupId` → warning, success)
-- [ ] 10.13 `add-broken-pom` and `init-broken-pom` (assert `The build could not read 1 project`, nothing changed) plus `add-broken-pom-subdir-workaround` (runs from `src/`, POM edited)
-- [ ] 10.14 `add-crlf-pom` (CRLF preserved, inserted lines CRLF) and, on the Windows CI leg, `init-windows-eol` (CRLF `pom.xml`/`Main.java`/properties, LF `mvnw`, CRLF `mvnw.cmd`)
+- [x] 10.1 `init-wrapper`: batch init with defaults; assert files vs goldens, `mvnw` executable, `./mvnw -v` on Unix
+- [x] 10.2 `init-no-wrapper`, `init-existing-dir`, `init-invalid-name`, `init-batch-missing-name`
+- [x] 10.3 `init-in-reactor`: run from a 3-module project root; assert a single project directory
+- [x] 10.4 `add-basic` and `add-scope` against WireMock; assert POM vs goldens and `Maven validate passed`
+- [x] 10.5 `add-nested-dir`, `add-duplicate`, `add-ambiguous-batch`, `add-offline`, `add-no-pom`
+- [x] 10.6 `interactive-init`: feed stdin to verify Prompter wiring end-to-end
+- [x] 10.7 `setup-new-file` and `setup-existing-file`: run setup with `-s <it dir>/settings.xml`, assert the goldens, then run `mvn -s <file> ex:help` to prove the prefix resolves; `setup-idempotent` runs setup twice
+- [x] 10.8 `uninstall-roundtrip`: setup then uninstall on a copied Maven default `settings.xml` with `-s`; assert the result is byte-identical to the original, the fully qualified `help` still works, and `mvn -s <file> ex:help` fails with the no-plugin-for-prefix error; `uninstall-missing-file` asserts no file or directory is created
+- [x] 10.9 `init-wrapper-mirror` and `init-wrapper-repourl`: assert `distributionUrl` uses the `mirrorOf="*"` mirror, respectively `MVNW_REPOURL`, and the running Maven version; `init-wrapper-mirror-central-only` asserts a `mirrorOf=central` mirror is ignored
+- [x] 10.10 `add-via-mirror`: IT settings with a `mirrorOf="*"` mirror pointing at WireMock; assert version listings and POM checks hit the mirror and search requests hit the search stubs
+- [x] 10.11 `add-env-proxy` (a lightweight forwarding proxy with Basic auth in the IT harness; assert the requests traverse it) and `add-socks-rejected` (assert the SOCKS error and that no direct request reaches WireMock)
+- [x] 10.12 `add-unknown-param` (typo fails with did-you-mean) and `add-shared-config` (a `.mvn/maven.config` with `ex.groupId` → warning, success)
+- [x] 10.13 `add-broken-pom` and `init-broken-pom` (assert `The build could not read 1 project`, nothing changed) plus `add-broken-pom-subdir-workaround` (runs from `src/`, POM edited)
+- [x] 10.14 `add-crlf-pom` (CRLF preserved, inserted lines CRLF) and, on the Windows CI leg, `init-windows-eol` (CRLF `pom.xml`/`Main.java`/properties, LF `mvnw`, CRLF `mvnw.cmd`)
 
 ## 11. CI and release
 

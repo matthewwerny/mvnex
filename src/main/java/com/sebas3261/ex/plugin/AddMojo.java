@@ -106,7 +106,8 @@ public class AddMojo extends AbstractExMojo {
         ProxyChooser proxies = new ProxyChooser(repositorySession.getProxySelector(), System.getenv(),
                 System.getProperties());
         String userAgent = "ex-maven-plugin/" + pluginVersion();
-        ResolverRepositoryLookup repository = new ResolverRepositoryLookup(repositorySystem, repositorySession, proxies);
+        ResolverRepositoryLookup repository = new ResolverRepositoryLookup(repositorySystem, repositorySession, proxies,
+                override("centralUrl", ResolverRepositoryLookup.CENTRAL_URL));
 
         MavenCentralSearchProvider sonatype = new MavenCentralSearchProvider(
                 http(proxies, SONATYPE_TIMEOUT_MILLIS, userAgent),
