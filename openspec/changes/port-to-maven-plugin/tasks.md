@@ -52,9 +52,9 @@
 
 ## 7. Project generation and wrapper
 
-- [ ] 7.1 Port `ProjectGenerator`: existing-path check, main/test package dirs, `Main.java` and `pom.xml` templates written with `System.lineSeparator()`
-- [ ] 7.2 Implement `WrapperGenerator`: properties with wrapper 3.3.4, Maven version from `RuntimeInformation`, repository URL from `MVNW_REPOURL` (trim, strip one trailing `/`, length > 4), then the first `mirrorOf="*"` mirror, then Central, and `System.lineSeparator()`; copy bundled `mvnw`/`mvnw.cmd` bytes, POSIX execute bits when supported, `Failed to generate Maven Wrapper.` on error
-- [ ] 7.3 Golden tests for init output (with/without wrapper) against fixtures from 1.2–1.4
+- [x] 7.1 Port `ProjectGenerator`: existing-path check, main/test package dirs, `Main.java` and `pom.xml` templates written with `System.lineSeparator()`
+- [x] 7.2 Implement `WrapperGenerator`: properties with wrapper 3.3.4, Maven version from `RuntimeInformation`, repository URL from `MVNW_REPOURL` (trim, strip one trailing `/`, length > 4), then the first `mirrorOf="*"` mirror, then Central, and `System.lineSeparator()`; copy bundled `mvnw`/`mvnw.cmd` bytes, POSIX execute bits when supported, `Failed to generate Maven Wrapper.` on error
+- [x] 7.3 Golden tests for init output (with/without wrapper) against fixtures from 1.2–1.4
 
 ## 8. Mojos and interaction
 
