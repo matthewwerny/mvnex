@@ -25,11 +25,11 @@
 
 ## 4. Application layer
 
-- [ ] 4.1 Define ports: `DependencyResolver`, `HttpClient`, `ProjectCreator`, `ProjectDependencyRepository`, `MavenProjectValidator` (PASSED/FAILED), `Interaction`, `ReportSink`
-- [ ] 4.2 Define errors: `DependencyResolutionException` base, `DependencyNotFoundException` (`Dependency not found: <q>`), `DependencyResolverUnavailableException`, `MultipleDependencyMatchesException` (query, ranked candidates, dependency index)
-- [ ] 4.3 Port `InitUseCase` (validate → create) without the Maven-missing check
-- [ ] 4.4 Port `AddUseCase`: resolve all in order with index-tagged ambiguity, attach requested scope, dedupe against POM keys (loaded once) and within the invocation, add, validate only when something was added
-- [ ] 4.5 Unit tests for both use cases with fakes, covering every add scenario in `specs/dependency-add` that does not involve I/O
+- [x] 4.1 Define ports: `DependencyResolver`, `HttpClient`, `ProjectCreator`, `ProjectDependencyRepository`, `MavenProjectValidator` (PASSED/FAILED), `Interaction`, `ReportSink`
+- [x] 4.2 Define errors: `DependencyResolutionException` base, `DependencyNotFoundException` (`Dependency not found: <q>`), `DependencyResolverUnavailableException`, `MultipleDependencyMatchesException` (query, ranked candidates, dependency index)
+- [x] 4.3 Port `InitUseCase` (validate → create) without the Maven-missing check
+- [x] 4.4 Port `AddUseCase`: resolve all in order with index-tagged ambiguity, attach requested scope, dedupe against POM keys (loaded once) and within the invocation, add, validate only when something was added
+- [x] 4.5 Unit tests for both use cases with fakes, covering every add scenario in `specs/dependency-add` that does not involve I/O
 
 ## 5. Dependency resolution
 
