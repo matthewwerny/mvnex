@@ -104,7 +104,7 @@
 
 ## 12. Remove the C++ implementation and update docs
 
-- [ ] 12.1 Confirm every scenario in the four specs is covered by a passing unit or integration test (checklist in the PR description)
+- [x] 12.1 Confirm every scenario in the four specs is covered by a passing unit or integration test (checklist in the PR description; see `coverage.md` — all 159 mapped, CI green, only the tag-release and post-removal scenarios remain by nature)
 - [ ] 12.2 Delete `src/application`, `src/domain`, `src/infrastructure`, `src/main.cpp`, `CMakeLists.txt`, `.vscode/c_cpp_properties.json`, and the CMake CI job/packaging steps
 - [x] 12.3 Rewrite `README.md`: installation while the plugin is not on Maven Central (`install:install-file` of the release JAR + POM, or `mvn install` from source, then the one-time fully qualified `…:setup` for the `ex:` prefix, with `mvn ex:uninstall` to undo it; manual `pluginGroups` snippet as a fallback), goal usage, Java 17/Maven 3.9 requirements, network configuration (proxy precedence settings → env → JVM, SOCKS via `-DsocksProxyHost`, mirrors used for repository lookups), a certificate-trust troubleshooting section, "Known limitations" (goals can't run where Maven can't load the POM, with the run-from-a-subdirectory workaround; in-process validation doesn't run validate-phase plugins), migration table from every `mvnex` command/flag to its `mvn ex:*` equivalent, updated roadmap/distribution section
 - [x] 12.4 Rewrite `docs/ARCHITECTURE.md` for the Java package layout and mojo flows; update the distribution section of `docs/VISION.md`

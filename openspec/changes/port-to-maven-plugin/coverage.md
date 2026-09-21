@@ -92,14 +92,14 @@ Every scenario in `specs/` mapped to the test that verifies it. "unit" tests run
 | Help and version replace CLI flags | Version visible | IT `help-smoke` |
 | Runtime baselines | Older JDK | descriptor declares `requiredJavaVersion` 17 (task 2.3); enforced by Maven's prerequisite checker — not run (no JDK 11 in CI) |
 | Runtime baselines | Older Maven | manual: Maven 3.9.0 → `requires Maven version 3.9.1` |
-| Runtime baselines | Floor verified | CI job `maven-floor` (Maven 3.9.1); run locally: 319 unit + 33 ITs pass |
+| Runtime baselines | Floor verified | CI job `maven-floor` (Maven 3.9.1) green in run 35609718787 |
 | Runtime baselines | Maven 3.9.0 is rejected | manual: Maven 3.9.0 → `requires Maven version 3.9.1` |
 | Failure reporting | Error surfaced as build failure | IT `init-invalid-name` |
 | Network configuration | Offline mode | IT `add-offline` |
 | Unknown parameter detection | Typo fails | IT `add-unknown-param`; unit `ParsingAndGuardTest#typoFailsWithSuggestion` |
 | Unknown parameter detection | Shared configuration tolerated | IT `add-shared-config` |
 | Unknown parameter detection | Test overrides accepted | unit `ParsingAndGuardTest#internalAndForeignKeysAreIgnored`; every WireMock-backed IT |
-| Automated verification | CI run | pending: first GitHub Actions run of this branch |
+| Automated verification | CI run | GitHub Actions run 35609718787: plugin job green on Linux/macOS/Windows × Java 17/21 (Windows 36/36 ITs incl. `init-windows-eol`), `maven-floor` green on Maven 3.9.1 |
 | Continuous integration and release | Tag release | pending: task 11.4 (release build simulated locally) |
 | Native CLI removed | Repository state after the change | pending: task 12.2 |
 
