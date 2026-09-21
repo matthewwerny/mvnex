@@ -45,10 +45,10 @@
 
 ## 6. POM repository and validation
 
-- [ ] 6.1 Implement `PomLocator` (explicit request POM, else upward walk from execution root; exact not-found message)
-- [ ] 6.2 Port `PomProjectDependencyRepository`: comment/CDATA-masked, depth-tracking location of the project-level `<dependencies>`; duplicate keys from that element only; rendering; insertion cases 1–4 from the spec (line start, inline closing tag, self-closing, wrap before last `</project>`); missing `</project>` error, ISO-8859-1 byte-transparent IO, inserted lines using the file's own line separator (first line break CRLF → CRLF)
-- [ ] 6.3 Golden tests against the fixtures from 1.5 (byte-for-byte), plus spec-derived cases for project-level `<dependencies>` after `<dependencyManagement>`, inline `<dependencies></dependencies>`, self-closing `<dependencies/>`, a managed-only dependency added for real, and a commented-out duplicate
-- [ ] 6.4 Implement `ProjectBuilderMavenProjectValidator` (session-derived request, no dependency resolution, ERROR problems → FAILED)
+- [x] 6.1 Implement `PomLocator` (explicit request POM, else upward walk from execution root; exact not-found message)
+- [x] 6.2 Port `PomProjectDependencyRepository`: comment/CDATA-masked, depth-tracking location of the project-level `<dependencies>`; duplicate keys from that element only; rendering; insertion cases 1–4 from the spec (line start, inline closing tag, self-closing, wrap before last `</project>`); missing `</project>` error, ISO-8859-1 byte-transparent IO, inserted lines using the file's own line separator (first line break CRLF → CRLF)
+- [x] 6.3 Golden tests against the fixtures from 1.5 (byte-for-byte), plus spec-derived cases for project-level `<dependencies>` after `<dependencyManagement>`, inline `<dependencies></dependencies>`, self-closing `<dependencies/>`, a managed-only dependency added for real, and a commented-out duplicate
+- [x] 6.4 Implement `ProjectBuilderMavenProjectValidator` (session-derived request, no dependency resolution, ERROR problems → FAILED)
 
 ## 7. Project generation and wrapper
 
