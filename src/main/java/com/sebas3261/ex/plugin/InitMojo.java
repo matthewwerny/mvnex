@@ -46,7 +46,10 @@ public class InitMojo extends AbstractExMojo {
     @Parameter(property = ExParameters.GROUP_ID)
     private String groupId;
 
-    /** Java package of the generated {@code Main} class. Defaults to the groupId plus the project name without hyphens. */
+    /**
+     * Java package of the generated {@code Main} class. Prompted for when missing, defaulting to the
+     * groupId plus the project name without hyphens (the batch-mode value).
+     */
     @Parameter(property = ExParameters.PACKAGE)
     private String packageName;
 

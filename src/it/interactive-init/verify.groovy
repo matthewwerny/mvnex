@@ -11,11 +11,20 @@ settings.text = '<settings><interactiveMode>true</interactiveMode></settings>'
 
 def dir = new File(basedir, 'work')
 dir.mkdirs()
-// Name, Group ID (Enter = default), Java version (number 3 = 17), Maven Wrapper (No)
-mvn(dir, localRepositoryPath, ['-s', settings.absolutePath, fq('init')], 'demo\n\n3\nNo\n', interactive).assertSuccess()
+// Name, Group ID (Enter = default), Package (Enter = derived), Java version (number 3 = 17), Maven Wrapper (No)
+mvn(dir, localRepositoryPath, ['-s', settings.absolutePath, fq('init')], 'demo\n\n\n3\nNo\n', interactive)
+        .assertSuccess().assertOutput('Package (com.example.demo): ')
+        .assertOutput('Java version').assertOutput('4) 21 (default)').assertOutput('Maven Wrapper')
 def pom = new File(dir, 'demo/pom.xml').getText('UTF-8')
 assert pom.contains('<groupId>com.example</groupId>') && pom.contains('<maven.compiler.release>17</maven.compiler.release>')
+assert new File(dir, 'demo/src/main/java/com/example/demo/Main.java').isFile()
 assert !new File(dir, 'demo/mvnw').exists()
+
+// The package default follows the answers; a custom package decides where Main.java goes.
+mvn(dir, localRepositoryPath, ['-s', settings.absolutePath, fq('init')],
+        'inventory-api\norg.acme\norg.acme.inventory\n\nNo\n', interactive)
+        .assertSuccess().assertOutput('Package (org.acme.inventoryapi): ')
+assert new File(dir, 'inventory-api/src/main/java/org/acme/inventory/Main.java').isFile()
 
 // End of input at the Group ID prompt cancels without creating anything.
 def cancelled = new File(basedir, 'cancelled')

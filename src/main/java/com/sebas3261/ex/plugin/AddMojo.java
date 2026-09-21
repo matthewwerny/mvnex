@@ -38,8 +38,13 @@ import org.eclipse.aether.spi.connector.transport.TransporterProvider;
  * validated. Expressions: {@code lombok}, {@code lombok:1.18.48}, {@code org.projectlombok:lombok},
  * {@code org.projectlombok:lombok:1.18.48}.
  *
+ * <p>Run interactively, the goal asks for missing values once the {@code pom.xml} is found: the
+ * dependencies, and for a single dependency its version and scope. In batch mode ({@code -B})
+ * nothing is asked and {@code ex.deps} is required.
+ *
  * <p>Examples:
  * <pre>
+ * mvn ex:add
  * mvn ex:add -Dex.deps=lombok
  * mvn ex:add -Dex.deps=junit-jupiter -Dex.scope=test
  * mvn ex:add -Dex.deps=lombok:1.18.48
@@ -54,15 +59,21 @@ public class AddMojo extends AbstractExMojo {
     static final int SEARCH_MAVEN_TIMEOUT_MILLIS = 1500;
     static final int DEPS_DEV_TIMEOUT_MILLIS = 5000;
 
-    /** Comma-separated dependency expressions to add. */
+    /** Comma-separated dependency expressions to add. Prompted for when missing (no default). */
     @Parameter(property = ExParameters.DEPS)
     private List<String> deps;
 
-    /** Version for the single dependency being added. */
+    /**
+     * Version for the single dependency being added. Prompted for when missing and the expression has
+     * no inline version (default {@code latest}: the highest stable version).
+     */
     @Parameter(property = ExParameters.VERSION)
     private String version;
 
-    /** Scope for the single dependency being added: compile, provided, runtime, test, system or import. */
+    /**
+     * Scope for the single dependency being added: compile, provided, runtime, test, system or import.
+     * Prompted for when missing (default {@code none}: no scope element).
+     */
     @Parameter(property = ExParameters.SCOPE)
     private String scope;
 
@@ -93,15 +104,14 @@ public class AddMojo extends AbstractExMojo {
 
     @Override
     protected void run(ReportSink report) {
-        List<DependencyRequest> requests = DependencyArgumentsParser.parse(deps, version, scope);
-
+        // Order (design D2): locate the POM, collect and parse the values, check offline, resolve.
+        // Batch runs have nothing to collect and keep failing on bad parameters before the POM search.
+        if (!session.getRequest().isInteractiveMode()) {
+            DependencyArgumentsParser.parse(deps, version, scope);
+        }
         java.io.File requestPom = session.getRequest().getPom();
         Path pom = PomLocator.locate(requestPom == null ? null : requestPom.toPath(),
                 Path.of(session.getExecutionRootDirectory()));
-
-        if (repositorySession.isOffline()) {
-            throw new LookupNotPossibleException(ResolverHttpClient.OFFLINE_MESSAGE);
-        }
 
         ProxyChooser proxies = new ProxyChooser(repositorySession.getProxySelector(), System.getenv(),
                 System.getProperties());
@@ -124,8 +134,13 @@ public class AddMojo extends AbstractExMojo {
                 new ProjectBuilderMavenProjectValidator(projectBuilder, session, pom));
         ConsoleInteraction interaction =
                 new ConsoleInteraction(input, output, session.getRequest().isInteractiveMode());
+        AddFlow flow = new AddFlow(interaction, report, useCase);
 
-        new AddFlow(interaction, report, useCase).run(requests);
+        List<DependencyRequest> requests = flow.requests(deps, version, scope);
+        if (repositorySession.isOffline()) {
+            throw new LookupNotPossibleException(ResolverHttpClient.OFFLINE_MESSAGE);
+        }
+        flow.run(requests);
     }
 
     private HttpClient http(ProxyChooser proxies, int timeoutMillis, String userAgent) {

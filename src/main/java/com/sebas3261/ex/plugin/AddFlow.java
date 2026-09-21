@@ -10,11 +10,15 @@ import com.sebas3261.ex.domain.dependency.ResolvedDependency;
 import java.util.ArrayList;
 import java.util.List;
 
-/** The {@code ex:add} conversation: resolve, disambiguate, report. */
+/** The {@code ex:add} conversation: collect missing values, resolve, disambiguate, report. */
 public final class AddFlow {
 
     static final String SEARCH_AGAIN = "Search again...";
     static final int VISIBLE_CANDIDATES = 3;
+    static final String LATEST = "latest";
+    static final String NO_SCOPE = "none";
+    static final List<String> SCOPE_CHOICES =
+            List.of(NO_SCOPE, "compile", "provided", "runtime", "test", "system", "import");
 
     private final Interaction interaction;
     private final ReportSink report;
@@ -24,6 +28,51 @@ public final class AddFlow {
         this.interaction = interaction;
         this.report = report;
         this.useCase = useCase;
+    }
+
+    /**
+     * Turns the goal parameters into requests. Interactive runs first ask for whatever is missing:
+     * the dependency list, then, for a single dependency, its version and scope. Batch runs parse
+     * the parameters as given, so a missing list fails with the usage message.
+     *
+     * @param dependencies {@code ex.deps}, or null
+     * @param version      {@code ex.version}, or null/blank
+     * @param scope        {@code ex.scope}, or null/blank
+     */
+    public List<DependencyRequest> requests(List<String> dependencies, String version, String scope) {
+        if (!interaction.isInteractive()) {
+            return DependencyArgumentsParser.parse(dependencies, version, scope);
+        }
+        if (dependencies == null || dependencies.isEmpty()) {
+            dependencies = askDependencies();
+        }
+        // Reject a malformed expression before asking anything about it.
+        DependencyArgumentsParser.parse(dependencies, null, null);
+        if (dependencies.size() == 1) {
+            if (isBlank(version) && !DependencyArgumentsParser.hasInlineVersion(dependencies.get(0))) {
+                String answer = interaction.text("Version", LATEST).trim();
+                version = answer.isEmpty() || answer.equalsIgnoreCase(LATEST) ? null : answer;
+            }
+            if (isBlank(scope)) {
+                String answer = interaction.select("Scope", SCOPE_CHOICES, NO_SCOPE);
+                scope = answer.equals(NO_SCOPE) ? null : answer;
+            }
+        }
+        return DependencyArgumentsParser.parse(dependencies, version, scope);
+    }
+
+    private List<String> askDependencies() {
+        while (true) {
+            String answer = interaction.text("Dependencies", "").trim();
+            if (!answer.isEmpty()) {
+                return List.of(answer.split(",", -1));
+            }
+            report.warn("At least one dependency is required.");
+        }
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     public void run(List<DependencyRequest> requests) {

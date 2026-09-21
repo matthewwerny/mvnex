@@ -31,6 +31,15 @@ class ParsingAndGuardTest {
     // ---- dependency grammar ----
 
     @Test
+    void inlineVersionFollowsTheGrammar() {
+        assertTrue(DependencyArgumentsParser.hasInlineVersion("lombok:1.18.32"));
+        assertTrue(DependencyArgumentsParser.hasInlineVersion(" org.projectlombok:lombok:1.18.32 "));
+        assertTrue(DependencyArgumentsParser.hasInlineVersion("junit:junit"), "dotless first part is term:version");
+        assertEquals(false, DependencyArgumentsParser.hasInlineVersion("lombok"));
+        assertEquals(false, DependencyArgumentsParser.hasInlineVersion("org.projectlombok:lombok"));
+    }
+
+    @Test
     void grammar() {
         assertEquals(new DependencyRequest.SearchTerm("lombok", ""), parseOne("lombok", ""));
         assertEquals(new DependencyRequest.SearchTermWithVersion("lombok", "1.18.32", ""), parseOne("lombok:1.18.32", ""));
@@ -144,9 +153,10 @@ class ParsingAndGuardTest {
             written.append(line);
         }
 
+        /** Like plexus-interactivity's DefaultOutputHandler (1.6.0): the text is dropped. */
         @Override
         public void writeLine(String line) {
-            written.append(line).append('\n');
+            written.append(System.lineSeparator());
         }
     }
 
@@ -169,6 +179,7 @@ class ParsingAndGuardTest {
         assertEquals("17", interaction.select("Java version", versions, "21"));
         assertEquals("21", interaction.select("Java version", versions, "21"));
         assertEquals("21", interaction.select("Java version", versions, "8"));
+        assertTrue(console.written.toString().startsWith("Java version" + System.lineSeparator() + "  1) 8"));
         assertTrue(console.written.toString().contains("  4) 21 (default)"));
         assertTrue(console.written.toString().contains("Invalid selection."));
         assertThrows(OperationCancelledException.class, () -> interaction.select("Java version", versions, "21"));

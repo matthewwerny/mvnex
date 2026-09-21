@@ -73,6 +73,15 @@ public final class DependencyArgumentsParser {
         return new DependencyRequest.CoordinateWithVersion(parts[0], parts[1], version(parts[2], optionVersion), scope);
     }
 
+    /**
+     * Whether a well-formed expression carries its own version ({@code g:a:v}, or {@code term:v}
+     * with a dotless first part), using the same split rules as {@link #parse}.
+     */
+    public static boolean hasInlineVersion(String expression) {
+        String[] parts = expression.trim().split(":", -1);
+        return parts.length == 3 || parts.length == 2 && !parts[0].contains(".");
+    }
+
     private static String version(String inline, String option) {
         if (!option.isEmpty() && !inline.equals(option)) {
             throw new IllegalArgumentException("Dependency version was provided twice with different values.");

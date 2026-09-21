@@ -68,6 +68,7 @@ public final class WireMockSupport {
         stubSolr(server, smo, "a:lombok", 25, "", fixture("search-maven-a-lombok.json"));
         stubSolr(server, smo, "g:\"org.projectlombok\" AND a:\"lombok\"", 25, "",
                 doc("org.projectlombok", "lombok", "1.18.38"));
+        stubSolr(server, smo, "a:junit-jupiter", 25, "", doc("org.junit.jupiter", "junit-jupiter", "5.13.0-M3"));
         stubSolr(server, smo, "g:\"org.junit.jupiter\" AND a:\"junit-jupiter\"", 25, "",
                 doc("org.junit.jupiter", "junit-jupiter", "5.13.0-M3"));
         stubSolr(server, smo, "g:\"org.projectlombok\" AND a:\"lombok\" AND v:\"1.18.32\"", 1, "gav",

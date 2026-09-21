@@ -130,11 +130,11 @@ mvn ex:init -Dex.name=my-app -Dex.wrapper=false
 |---|---|---|
 | `ex.name` | Project name: lowercase letters, digits and single hyphens. Also the artifactId and directory name. | prompted (`my-project`) |
 | `ex.groupId` | Maven groupId | prompted (`com.example`) |
-| `ex.package` | Java package of the generated `Main` class | groupId + name without hyphens |
+| `ex.package` | Java package of the generated `Main` class | prompted (groupId + name without hyphens) |
 | `ex.java` | `maven.compiler.release`: 8, 11, 17, 21, or 25 | prompted (21) |
 | `ex.wrapper` | `false` skips the Maven Wrapper | asked when not everything was given |
 
-In batch mode (`mvn -B`) nothing is prompted: `ex.name` is required and everything else uses its default. Maven 3.9 also switches to batch mode by itself when the `CI` environment variable is `true`, as on GitHub Actions.
+Prompts come in the order name, groupId, package, Java version, then the wrapper. Pressing Enter accepts the default shown in parentheses; the package default is built from the name and groupId you just gave. In batch mode (`mvn -B`) nothing is prompted: `ex.name` is required and everything else uses its default. Maven 3.9 also switches to batch mode by itself when the `CI` environment variable is `true`, as on GitHub Actions.
 
 The generated project contains `pom.xml`, `src/main/java/<package>/Main.java`, an empty `src/test/java/<package>/`, and, unless disabled, the Maven Wrapper (`mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`). The wrapper pins the Maven version you ran `ex:init` with and downloads it from `MVNW_REPOURL`, else from your `mirrorOf="*"` mirror, else from Maven Central, like `maven-wrapper-plugin` does. Generating it needs no network access.
 
@@ -154,6 +154,7 @@ my-app/
 Add dependencies to the nearest `pom.xml`, searching upward from the current directory:
 
 ```bash
+mvn ex:add                                    # interactive
 mvn ex:add -Dex.deps=lombok
 mvn ex:add -Dex.deps=lombok:1.18.48
 mvn ex:add -Dex.deps=org.projectlombok:lombok
@@ -167,6 +168,14 @@ mvn ex:add -Dex.deps=lombok,org.postgresql:postgresql
 | `ex.deps` | Comma-separated dependency expressions |
 | `ex.version` | Version, when adding a single dependency |
 | `ex.scope` | `compile`, `provided`, `runtime`, `test`, `system`, or `import`, when adding a single dependency |
+
+When run interactively, `ex:add` first finds the `pom.xml`, then asks for anything missing:
+
+- **Dependencies**, when `ex.deps` is absent. It uses the same comma-separated expressions; an empty answer asks again.
+- **Version**, for a single dependency without `ex.version` or an inline version. Enter (or `latest`) keeps the automatic version choice.
+- **Scope**, for a single dependency without `ex.scope`. `none` (the default) adds no `<scope>`.
+
+In batch mode (`mvn -B`, or `CI=true`) nothing is prompted, and a missing `ex.deps` fails with the usage message.
 
 How it works:
 

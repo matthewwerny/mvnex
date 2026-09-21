@@ -84,11 +84,11 @@ public final class ConsoleInteraction implements Interaction {
         }
     }
 
+    /**
+     * Not {@link OutputHandler#writeLine}: plexus-interactivity's {@code DefaultOutputHandler}
+     * (1.6.0) prints only the line separator and drops the text.
+     */
     private void writeLine(String text) {
-        try {
-            output.writeLine(text);
-        } catch (IOException e) {
-            throw new OperationCancelledException();
-        }
+        write(text + System.lineSeparator());
     }
 }

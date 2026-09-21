@@ -61,6 +61,10 @@ public final class InitFlow {
             if (!groupGiven) {
                 groupId = interaction.text("Group ID", DEFAULT_GROUP_ID);
             }
+            if (packageName == null) {
+                // Enter keeps the derived package; validated with the rest of the configuration below.
+                packageName = interaction.text("Package", derivedPackage(groupId, name));
+            }
             if (!javaGiven) {
                 java = interaction.select("Java version", JAVA_CHOICES, DEFAULT_JAVA);
             }
@@ -77,7 +81,7 @@ public final class InitFlow {
         }
 
         if (packageName == null) {
-            packageName = groupId + "." + ProjectNaming.toPackageName(name);
+            packageName = derivedPackage(groupId, name);
         }
 
         boolean skipWrapper = Boolean.FALSE.equals(parameters.wrapper());
@@ -99,6 +103,11 @@ public final class InitFlow {
         report.info("Project created successfully");
         report.info("  cd " + config.name());
         report.info(skipWrapper ? "  mvn package" : "  ./mvnw package");
+    }
+
+    /** {@code <groupId>.<name without hyphens>}. */
+    static String derivedPackage(String groupId, String name) {
+        return groupId + "." + ProjectNaming.toPackageName(name);
     }
 
     /** {@code "  " + label padded to 10 + value}, as the C++ summary printed it. */

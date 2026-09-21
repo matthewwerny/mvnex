@@ -163,4 +163,107 @@ class AddFlowTest {
 
         assertTrue(io.output.stream().noneMatch(line -> line.contains("validate")));
     }
+
+    // --- collecting missing values (requests) ---
+
+    private List<DependencyRequest> collect(ScriptedInteraction io, List<String> deps, String version,
+            String scope) {
+        return new AddFlow(io, io, useCase()).requests(deps, version, scope);
+    }
+
+    private static final String SCOPE_PROMPT =
+            "Scope [none, compile, provided, runtime, test, system, import] [none]";
+
+    @Test
+    void everythingPromptedWithDefaults() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "org.projectlombok:lombok", "", "");
+        List<DependencyRequest> requests = collect(io, null, null, null);
+
+        assertEquals(List.of("Dependencies []", "Version [latest]", SCOPE_PROMPT), io.prompts);
+        assertEquals(List.of(new DependencyRequest.Coordinate("org.projectlombok", "lombok", "")), requests);
+    }
+
+    @Test
+    void versionAndScopeAnswered() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "junit-jupiter", "5.10.0", "test");
+        assertEquals(List.of(new DependencyRequest.SearchTermWithVersion("junit-jupiter", "5.10.0", "test")),
+                collect(io, null, null, null));
+    }
+
+    @Test
+    void latestAnswerMeansNoVersion() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "LATEST", "5");
+        assertEquals(List.of(new DependencyRequest.SearchTerm("guava", "test")),
+                collect(io, List.of("guava"), null, null));
+    }
+
+    @Test
+    void emptyDependencyAnswerAsksAgain() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "", "  ", "guava", "", "");
+        collect(io, null, null, null);
+
+        assertEquals(List.of("Dependencies []", "Dependencies []", "Dependencies []", "Version [latest]",
+                SCOPE_PROMPT), io.prompts);
+        assertEquals(List.of("WARN At least one dependency is required.",
+                "WARN At least one dependency is required."), io.output);
+    }
+
+    @Test
+    void inlineVersionSkipsTheVersionPrompt() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "");
+        collect(io, List.of("lombok:1.18.32"), null, null);
+        assertEquals(List.of(SCOPE_PROMPT), io.prompts);
+
+        ScriptedInteraction coordinate = new ScriptedInteraction(true, "");
+        collect(coordinate, List.of("org.projectlombok:lombok:1.18.32"), null, null);
+        assertEquals(List.of(SCOPE_PROMPT), coordinate.prompts);
+    }
+
+    @Test
+    void providedValuesAreNotAskedAgain() {
+        ScriptedInteraction io = new ScriptedInteraction(true);
+        assertEquals(List.of(new DependencyRequest.SearchTermWithVersion("lombok", "1.18.32", "provided")),
+                collect(io, List.of("lombok"), "1.18.32", "provided"));
+        assertTrue(io.prompts.isEmpty());
+    }
+
+    @Test
+    void severalDependenciesSkipVersionAndScope() {
+        ScriptedInteraction io = new ScriptedInteraction(true, " lombok , guava ");
+        List<DependencyRequest> requests = collect(io, null, null, null);
+
+        assertEquals(List.of("Dependencies []"), io.prompts);
+        assertEquals(List.of(new DependencyRequest.SearchTerm("lombok", ""),
+                new DependencyRequest.SearchTerm("guava", "")), requests);
+    }
+
+    @Test
+    void malformedAnswerFailsBeforeFurtherPrompts() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "a:b:c:d");
+        assertEquals("Invalid dependency format: a:b:c:d",
+                assertThrows(IllegalArgumentException.class, () -> collect(io, null, null, null)).getMessage());
+        assertEquals(List.of("Dependencies []"), io.prompts);
+    }
+
+    @Test
+    void inputClosedAtScopeCancelsWithoutWriting() {
+        ScriptedInteraction io = new ScriptedInteraction(true, "guava", "");
+        assertThrows(OperationCancelledException.class, () -> collect(io, null, null, null));
+        assertTrue(writes.isEmpty());
+    }
+
+    @Test
+    void batchModeStillFailsWithTheUsageMessage() {
+        ScriptedInteraction io = ScriptedInteraction.batch();
+        assertEquals("Missing dependency. Usage: " + DependencyArgumentsParser.USAGE,
+                assertThrows(IllegalArgumentException.class, () -> collect(io, null, null, null)).getMessage());
+        assertTrue(io.prompts.isEmpty());
+    }
+
+    @Test
+    void batchModeNeverAsksForVersionOrScope() {
+        ScriptedInteraction io = ScriptedInteraction.batch();
+        assertEquals(List.of(new DependencyRequest.SearchTerm("guava", "")), collect(io, List.of("guava"), null, null));
+        assertTrue(io.prompts.isEmpty());
+    }
 }
