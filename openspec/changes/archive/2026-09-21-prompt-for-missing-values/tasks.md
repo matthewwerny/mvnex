@@ -23,4 +23,4 @@
 
 - [x] 4.1 README: `ex:init` and `ex:add` sections describe the new prompts, their defaults, and that `-B` (or `CI=true`) disables them
 - [x] 4.2 Update the Javadoc of `InitMojo.packageName` and `AddMojo`'s parameters so `mvn ex:help -Ddetail` mentions the prompts
-- [ ] 4.3 Push the branch and confirm CI is green on all required jobs
+- [x] 4.3 Push the branch and confirm CI is green on all required jobs
