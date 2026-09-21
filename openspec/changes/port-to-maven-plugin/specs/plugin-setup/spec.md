@@ -12,15 +12,19 @@ The plugin SHALL provide a `setup` goal, invoked with the fully qualified form `
 - **THEN** the settings file is processed exactly once
 
 ### Requirement: Settings file location
-The `setup` and `uninstall` goals SHALL target the user settings file that Maven itself is using for the current invocation: the file passed with `-s`/`--settings` when given, otherwise `<user.home>/.m2/settings.xml`. If the target path is a symbolic link, the goal SHALL read and write the link's target and leave the link in place. The global settings file (`<maven.home>/conf/settings.xml`) SHALL NOT be modified.
+The `setup` and `uninstall` goals SHALL target the user settings file that Maven itself is using for the current invocation: the file passed with `-s`/`--settings` when given, otherwise `<user.home>/.m2/settings.xml`. Maven itself rejects a `-s` file that does not exist (`The specified user settings file does not exist`) before any goal runs, so a settings file can only be *created* at the default location; with `-s` the file must already exist and is updated. If the target path is a symbolic link, the goal SHALL read and write the link's target and leave the link in place. The global settings file (`<maven.home>/conf/settings.xml`) SHALL NOT be modified.
 
 #### Scenario: Default location
 - **WHEN** no `-s` option is given
 - **THEN** the goal targets `<user.home>/.m2/settings.xml`
 
 #### Scenario: Custom settings file
-- **WHEN** the user runs the goal with `-s /work/ci-settings.xml`
-- **THEN** `/work/ci-settings.xml` is created or updated, and `~/.m2/settings.xml` is untouched
+- **WHEN** the user runs the goal with `-s /work/ci-settings.xml` and that file exists
+- **THEN** `/work/ci-settings.xml` is updated, and `~/.m2/settings.xml` is untouched
+
+#### Scenario: Custom settings file that does not exist
+- **WHEN** the user runs the goal with `-s /work/missing.xml`
+- **THEN** Maven fails with `The specified user settings file does not exist` before the goal runs, and nothing is created
 
 #### Scenario: Symlinked settings
 - **WHEN** `~/.m2/settings.xml` is a symlink to `~/dotfiles/maven-settings.xml`
@@ -61,9 +65,9 @@ The goal SHALL parse the existing file as Maven settings and SHALL treat the plu
 
 ### Requirement: Add pluginGroup to an existing file
 When the file exists and the plugin is not registered, the goal SHALL insert the entry textually, preserving every other byte of the file (comments, formatting, element order, encoding, line separators), using the first matching case:
-1. **Active `<pluginGroups>` element with content** — insert a new line `<pluginGroup>com.sebas3261</pluginGroup>` immediately before the line containing the closing `</pluginGroups>` tag, indented like the last active `<pluginGroup>` child if one exists, otherwise like the closing tag plus two spaces.
+1. **Active `<pluginGroups>` element with content** — insert a new line `<pluginGroup>com.sebas3261</pluginGroup>` immediately before the line containing the closing `</pluginGroups>` tag, indented like the last active `<pluginGroup>` child if one exists, otherwise like the closing tag plus two spaces. If the closing tag shares its line with other content (e.g. `<pluginGroups><pluginGroup>org.foo</pluginGroup></pluginGroups>`), the entry is inserted inline immediately before `</pluginGroups>`, without adding line breaks.
 2. **Self-closing `<pluginGroups/>`** — replace it with an opening tag, the entry line (closing-tag indentation plus two spaces), and a closing tag at the original indentation.
-3. **No active `<pluginGroups>` element** — insert a `<pluginGroups>` block containing the entry immediately before the closing `</settings>` tag's line, indented like the first child element of `<settings>` (two spaces if `<settings>` has no children), with the entry one further level (two spaces) deeper.
+3. **No active `<pluginGroups>` element** — insert a `<pluginGroups>` block containing the entry immediately before the closing `</settings>` tag's line (or, if that tag shares its line with other content, on a new line just before it), indented like the first child element of `<settings>`, with the entry one indentation level deeper, where the level is that child's indentation relative to `<settings>` (two spaces if `<settings>` has no children). A self-closing `<settings/>` is expanded into an open and a closing tag around the block, keeping its attributes.
 
 Text inside XML comments and CDATA sections SHALL be ignored when locating elements. Inserted lines SHALL use the file's existing line separator (CRLF if the file's first line break is CRLF, otherwise LF). The file SHALL be read and written in the encoding declared by its XML declaration, defaulting to UTF-8.
 
@@ -78,6 +82,10 @@ Text inside XML comments and CDATA sections SHALL be ignored when locating eleme
 #### Scenario: No pluginGroups element
 - **WHEN** the file has `<settings>` with `<localRepository>` and `<mirrors>` children indented four spaces and no `<pluginGroups>`
 - **THEN** a four-space-indented `<pluginGroups>` block with an eight-space-indented entry is inserted before `</settings>`
+
+#### Scenario: Single-line pluginGroups
+- **WHEN** the file contains `  <pluginGroups><pluginGroup>org.foo</pluginGroup></pluginGroups>`
+- **THEN** that line becomes `  <pluginGroups><pluginGroup>org.foo</pluginGroup><pluginGroup>com.sebas3261</pluginGroup></pluginGroups>`
 
 #### Scenario: Windows line endings
 - **WHEN** the file uses CRLF line endings

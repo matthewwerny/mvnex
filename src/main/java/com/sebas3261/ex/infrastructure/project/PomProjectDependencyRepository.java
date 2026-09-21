@@ -2,6 +2,7 @@ package com.sebas3261.ex.infrastructure.project;
 
 import com.sebas3261.ex.application.ports.ProjectDependencyRepository;
 import com.sebas3261.ex.domain.dependency.ResolvedDependency;
+import com.sebas3261.ex.infrastructure.xml.XmlText;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -85,7 +86,7 @@ public final class PomProjectDependencyRepository implements ProjectDependencyRe
         }
 
         // Case 4: no project-level <dependencies>
-        int projectClose = xml.masked.lastIndexOf("</project>");
+        int projectClose = xml.masked().lastIndexOf("</project>");
         if (projectClose < 0) {
             throw new IllegalStateException("Invalid pom.xml: missing </project>.");
         }

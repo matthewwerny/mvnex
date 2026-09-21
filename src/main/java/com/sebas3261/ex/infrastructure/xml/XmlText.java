@@ -1,4 +1,4 @@
-package com.sebas3261.ex.infrastructure.project;
+package com.sebas3261.ex.infrastructure.xml;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -10,34 +10,34 @@ import java.util.List;
  * processing instructions are masked (replaced by spaces, keeping line breaks), so offsets in the
  * masked text equal offsets in the original and commented-out markup is never matched.
  */
-final class XmlText {
+public final class XmlText {
 
     /** An element found by the scanner; {@code closeStart}/{@code closeEnd} are -1 for self-closing tags. */
-    record Element(String name, int depth, int openStart, int openEnd, int closeStart, int closeEnd) {
+    public record Element(String name, int depth, int openStart, int openEnd, int closeStart, int closeEnd) {
 
-        boolean selfClosing() {
+        public boolean selfClosing() {
             return closeStart < 0;
         }
     }
 
-    final String original;
-    final String masked;
-    final List<Element> elements;
+    private final String original;
+    private final String masked;
+    private final List<Element> elements;
 
-    XmlText(String original) {
+    public XmlText(String original) {
         this.original = original;
         this.masked = mask(original);
         this.elements = scan(masked);
     }
 
     /** The line separator of the text: CRLF if its first line break is CRLF, otherwise LF. */
-    String lineSeparator() {
+    public String lineSeparator() {
         int lf = original.indexOf('\n');
         return lf > 0 && original.charAt(lf - 1) == '\r' ? "\r\n" : "\n";
     }
 
     /** Elements with the given local name whose ancestors (outermost first) have exactly the given local names. */
-    List<Element> find(List<String> ancestorPath, String name) {
+    public List<Element> find(List<String> ancestorPath, String name) {
         List<Element> matches = new ArrayList<>();
         for (Element element : elements) {
             if (element.name().equals(name) && element.depth() == ancestorPath.size()
@@ -49,7 +49,7 @@ final class XmlText {
     }
 
     /** Direct children of {@code parent} with the given local name. */
-    List<Element> children(Element parent, String name) {
+    public List<Element> children(Element parent, String name) {
         List<Element> matches = new ArrayList<>();
         if (parent.selfClosing()) {
             return matches;
@@ -64,8 +64,23 @@ final class XmlText {
     }
 
     /** Masked text content of an element (between its tags), trimmed. */
-    String content(Element element) {
+    public String content(Element element) {
         return element.selfClosing() ? "" : masked.substring(element.openEnd(), element.closeStart()).trim();
+    }
+
+    /** The original text. */
+    public String original() {
+        return original;
+    }
+
+    /** The text with comments, CDATA, processing instructions and DOCTYPE blanked out (same offsets). */
+    public String masked() {
+        return masked;
+    }
+
+    /** All elements, in document order. */
+    public List<Element> elements() {
+        return elements;
     }
 
     private List<String> ancestors(Element target) {

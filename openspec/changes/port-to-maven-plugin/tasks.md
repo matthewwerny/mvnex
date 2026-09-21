@@ -67,16 +67,16 @@
 
 ## 9. Setup and uninstall goals
 
-- [ ] 9.1 Capture settings fixtures under `src/test/resources/settings/`: Maven 3.9.16 `conf/settings.xml` verbatim, file with existing groups (tab-indented), self-closing `<pluginGroups/>`, no `<pluginGroups>` (4-space indent), CRLF file, group only in a comment, group already active, `<settings>` with no children, non-UTF-8 declared encoding, malformed XML; write expected-output goldens for each
-- [ ] 9.2 Implement comment/CDATA masking and `SettingsPluginGroupEditor` (detect via `SettingsXpp3Reader`, locate on the masked text, insert with the derived indentation and line separator, cases 1–3, re-parse verification)
-- [ ] 9.3 Implement `SettingsFileWriter`: symlink resolution, encoding from the XML declaration, timestamped `.bak`, temp file + atomic move with fallback, POSIX permission preservation
-- [ ] 9.4 Implement `SetupMojo` (`setup`, requiresProject=false, aggregator, threadSafe): target `session.getRequest().getUserSettingsFile()`, create the new file from the template, the exact log messages, and the completion hint
-- [ ] 9.5 Add the setup tip to `InitMojo` and `AddMojo`, based on `session.getSettings().getPluginGroups()` and the running plugin version
-- [ ] 9.6 Unit tests: every fixture from 9.1 byte-for-byte, idempotency (second run leaves bytes and mtime unchanged), malformed input leaves no backup, permission preservation on POSIX
-- [ ] 9.7 Add uninstall fixtures: entry among other groups (LF and CRLF), similar group `com.sebas3261.tools`, commented entry plus active entry, inline single-line `<pluginGroups>`, duplicate active entries, entry with surrounding whitespace in the value, namespace-prefixed element (expects safe failure), a full settings file with mirrors/servers/proxies/profiles; write expected-output goldens
-- [ ] 9.8 Implement `SettingsPluginGroupEditor.remove`: masked-text matching, whole-line versus element-only range widening, count check against the parser, and a model-equality check via `SettingsXpp3Writer` (design D15)
-- [ ] 9.9 Implement `UninstallMojo` (`uninstall`, requiresProject=false, aggregator, threadSafe): same target-file resolution and `SettingsFileWriter` as setup, the no-file and not-configured no-ops (no file/dir creation, no backup), removal and completion messages, and the global-settings note
-- [ ] 9.10 Unit tests: every fixture from 9.7 byte-for-byte; property test that `uninstall(setup(x)) == x` for every case-1 fixture and leaves only an empty `<pluginGroups>` for cases 2–3; idempotency; malformed input and count mismatch leave no backup
+- [x] 9.1 Capture settings fixtures under `src/test/resources/settings/`: Maven 3.9.16 `conf/settings.xml` verbatim, file with existing groups (tab-indented), self-closing `<pluginGroups/>`, no `<pluginGroups>` (4-space indent), CRLF file, group only in a comment, group already active, `<settings>` with no children, non-UTF-8 declared encoding, malformed XML; write expected-output goldens for each
+- [x] 9.2 Implement comment/CDATA masking and `SettingsPluginGroupEditor` (detect via `SettingsXpp3Reader`, locate on the masked text, insert with the derived indentation and line separator, cases 1–3, re-parse verification)
+- [x] 9.3 Implement `SettingsFileWriter`: symlink resolution, encoding from the XML declaration, timestamped `.bak`, temp file + atomic move with fallback, POSIX permission preservation
+- [x] 9.4 Implement `SetupMojo` (`setup`, requiresProject=false, aggregator, threadSafe): target `session.getRequest().getUserSettingsFile()`, create the new file from the template, the exact log messages, and the completion hint
+- [x] 9.5 Add the setup tip to `InitMojo` and `AddMojo`, based on `session.getSettings().getPluginGroups()` and the running plugin version
+- [x] 9.6 Unit tests: every fixture from 9.1 byte-for-byte, idempotency (second run leaves bytes and mtime unchanged), malformed input leaves no backup, permission preservation on POSIX
+- [x] 9.7 Add uninstall fixtures: entry among other groups (LF and CRLF), similar group `com.sebas3261.tools`, commented entry plus active entry, inline single-line `<pluginGroups>`, duplicate active entries, entry with surrounding whitespace in the value, namespace-prefixed element (expects safe failure), a full settings file with mirrors/servers/proxies/profiles; write expected-output goldens
+- [x] 9.8 Implement `SettingsPluginGroupEditor.remove`: masked-text matching, whole-line versus element-only range widening, count check against the parser, and a model-equality check via `SettingsXpp3Writer` (design D15)
+- [x] 9.9 Implement `UninstallMojo` (`uninstall`, requiresProject=false, aggregator, threadSafe): same target-file resolution and `SettingsFileWriter` as setup, the no-file and not-configured no-ops (no file/dir creation, no backup), removal and completion messages, and the global-settings note
+- [x] 9.10 Unit tests: every fixture from 9.7 byte-for-byte; property test that `uninstall(setup(x)) == x` for every case-1 fixture and leaves only an empty `<pluginGroups>` for cases 2–3; idempotency; malformed input and count mismatch leave no backup
 
 ## 10. Integration tests (`src/it`)
 
