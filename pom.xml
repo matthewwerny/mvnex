@@ -28,7 +28,7 @@
     </scm>
 
     <prerequisites>
-        <maven>3.9.0</maven>
+        <maven>3.9.1</maven>
     </prerequisites>
 
     <properties>
@@ -195,7 +195,7 @@
                         <extractor>java-annotations</extractor>
                     </extractors>
                     <requiredJavaVersion>17</requiredJavaVersion>
-                    <requiredMavenVersion>3.9.0</requiredMavenVersion>
+                    <requiredMavenVersion>3.9.1</requiredMavenVersion>
                 </configuration>
                 <executions>
                     <execution>

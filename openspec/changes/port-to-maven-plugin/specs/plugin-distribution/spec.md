@@ -30,7 +30,7 @@ The plugin SHALL expose exactly the goals `init`, `add`, `setup`, `uninstall`, a
 - **THEN** the output header includes `ex-maven-plugin` and its version
 
 ### Requirement: Runtime baselines
-The plugin SHALL declare `requiredJavaVersion` 17 and `requiredMavenVersion` 3.9.0 in its plugin descriptor so that Maven's own prerequisite checks reject unsupported environments with a clear message before loading plugin classes. The declared Maven floor SHALL be verified by CI; if the plugin does not pass on 3.9.0, the floor SHALL be raised to the lowest 3.9.x release that passes. It SHALL NOT require an external `mvn` executable, native libraries, or a TTY for batch-mode operation. Generated projects SHALL still support `maven.compiler.release` values 8–25 independent of the JDK running the plugin.
+The plugin SHALL declare `requiredJavaVersion` 17 and `requiredMavenVersion` 3.9.1 in its plugin descriptor so that Maven's own prerequisite checks reject unsupported environments with a clear message before loading plugin classes. The declared Maven floor SHALL be verified by CI. (It was lowered-bound empirically: Maven 3.9.0 fails every aggregator goal run without a POM because `MavenProject.getCollectedProjects()` returns null, while 3.9.1 passes the full suite.) It SHALL NOT require an external `mvn` executable, native libraries, or a TTY for batch-mode operation. Generated projects SHALL still support `maven.compiler.release` values 8–25 independent of the JDK running the plugin.
 
 #### Scenario: Older JDK
 - **WHEN** Maven runs on Java 11
@@ -41,8 +41,12 @@ The plugin SHALL declare `requiredJavaVersion` 17 and `requiredMavenVersion` 3.9
 - **THEN** Maven refuses with its prerequisite message naming the required Maven version
 
 #### Scenario: Floor verified
-- **WHEN** CI runs the integration tests on Maven 3.9.0
-- **THEN** they pass (or the declared floor is raised to the lowest passing 3.9.x)
+- **WHEN** CI runs the unit and integration tests on Maven 3.9.1
+- **THEN** they all pass
+
+#### Scenario: Maven 3.9.0 is rejected
+- **WHEN** a goal is run with Maven 3.9.0
+- **THEN** Maven refuses with its prerequisite message naming the required Maven version 3.9.1
 
 ### Requirement: Failure reporting
 Every error condition that made the C++ CLI exit with status `1` SHALL fail the Maven build via `MojoFailureException` carrying the same message text (with CLI flag names replaced by `ex.*` property names). Informational output SHALL use Maven's logger at `INFO`; warnings at `WARN`; non-fatal errors at `ERROR`. ANSI styling SHALL rely on Maven's own message styling only.

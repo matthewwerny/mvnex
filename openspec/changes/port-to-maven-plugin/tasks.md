@@ -97,9 +97,9 @@
 
 ## 11. CI and release
 
-- [ ] 11.1 Add a plugin job to `.github/workflows/build.yml`: {ubuntu, macos, windows} × Java {17, 21}, `mvn -B verify`; keep the CMake job until section 12
-- [ ] 11.2 Add an allowed-to-fail job on the latest Maven 4 release candidate, and a required Linux/Java 17 job running the integration tests on Maven 3.9.0; if it fails, raise `requiredMavenVersion` to the lowest 3.9.x that passes and update the spec
-- [ ] 11.3 Replace the tag release flow: on `v*`, build and attach JAR, POM, sources and javadoc JARs to a GitHub prerelease
+- [x] 11.1 Add a plugin job to `.github/workflows/build.yml`: {ubuntu, macos, windows} × Java {17, 21}, `mvn -B verify`; keep the CMake job until section 12
+- [x] 11.2 Add an allowed-to-fail job on the latest Maven 4 release candidate, and a required Linux/Java 17 job running the integration tests on Maven 3.9.0; if it fails, raise `requiredMavenVersion` to the lowest 3.9.x that passes and update the spec (done: 3.9.0 fails with a core NPE for POM-less aggregator goals; floor raised to 3.9.1, which passes the full suite)
+- [x] 11.3 Replace the tag release flow: on `v*`, build and attach JAR, POM, sources and javadoc JARs to a GitHub prerelease
 - [ ] 11.4 Tag `v0.2.0` and verify both install paths on a clean machine: (a) released JAR + POM via `mvn install:install-file` → fully qualified goals work; confirm whether `mvn ex:help` works after `setup` (expected: no, per the maven-install-plugin 3.2.0 source); (b) `git clone` + `mvn install` + `setup` → `mvn ex:help` works. Correct the README if either result differs
 
 ## 12. Remove the C++ implementation and update docs
